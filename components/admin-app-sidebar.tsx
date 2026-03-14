@@ -18,6 +18,7 @@ import {
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -32,37 +33,33 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/authStore"; // Import your auth store
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/admin/dashboard", // Updated URL
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "#",
+      title: "Skill Category",
+      url: "/admin/skill-category", // This one is already correct
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Users",
+      url: "/admin/users", // Updated URL
       icon: IconChartBar,
     },
     {
       title: "Projects",
-      url: "#",
+      url: "/admin/projects", // Updated URL
       icon: IconFolder,
     },
     {
       title: "Team",
-      url: "#",
+      url: "/admin/team", // Updated URL
       icon: IconUsers,
     },
   ],
@@ -71,45 +68,45 @@ const data = {
       title: "Capture",
       icon: IconCamera,
       isActive: true,
-      url: "#",
+      url: "/admin/capture", // Updated URL
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/capture/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/capture/archived",
         },
       ],
     },
     {
       title: "Proposal",
       icon: IconFileDescription,
-      url: "#",
+      url: "/admin/proposal", // Updated URL
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/proposal/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/proposal/archived",
         },
       ],
     },
     {
       title: "Prompts",
       icon: IconFileAi,
-      url: "#",
+      url: "/admin/prompts", // Updated URL
       items: [
         {
           title: "Active Proposals",
-          url: "#",
+          url: "/admin/prompts/active",
         },
         {
           title: "Archived",
-          url: "#",
+          url: "/admin/prompts/archived",
         },
       ],
     },
@@ -117,34 +114,34 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/admin/settings", // Updated URL
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "/admin/help", // Updated URL
       icon: IconHelp,
     },
     {
       title: "Search",
-      url: "#",
+      url: "/admin/search", // Updated URL
       icon: IconSearch,
     },
   ],
   documents: [
     {
       name: "Data Library",
-      url: "#",
+      url: "/admin/data-library", // Updated URL
       icon: IconDatabase,
     },
     {
       name: "Reports",
-      url: "#",
+      url: "/admin/reports", // Updated URL
       icon: IconReport,
     },
     {
       name: "Word Assistant",
-      url: "#",
+      url: "/admin/word-assistant", // Updated URL
       icon: IconFileWord,
     },
   ],
@@ -153,6 +150,16 @@ const data = {
 export function AdminAppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const { user } = useAuthStore(); // Get actual user from auth store
+
+  // Use actual user data from auth store
+  const userData = {
+    name: user?.name || "Admin User",
+    email: user?.email || "admin@example.com",
+    avatar: user?.avatar || "/avatars/default.jpg",
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -162,7 +169,7 @@ export function AdminAppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/admin/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">Admin Dashboard</span>
               </a>
@@ -176,7 +183,7 @@ export function AdminAppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

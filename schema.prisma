@@ -1,0 +1,173 @@
+// GENERATOR & DATASOURCE
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// ENUMS
+enum Role {
+    ADMIN
+    USER
+}
+
+enum MatchStatus {
+    PENDING
+    ACCEPTED
+    DECLINED
+    COMPLETED
+    CANCELLED
+}
+
+enum SessionStatus {
+    SCHEDULED
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
+}
+
+enum NotificationType {
+    MATCH_REQUEST
+    MATCH_ACCEPTED
+    SESSION_REMINDER
+    NEW_MESSAGE
+}
+
+// CORE MODELS
+model User {
+    id           String   @id @default(uuid())
+    email        String   @unique
+    name         String
+    passwordHash String
+    role         Role     @default(USER)
+    bio          String?
+    avatar       String?
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    // Relations
+    skills          UserSkill[]
+    availabilities  Availability[]
+    sentMatches     Match[]        @relation("requester")
+    receivedMatches Match[]        @relation("receiver")
+    messages        Message[]
+    sessions        Session[]
+    notifications   Notification[]
+    sessions        Session[]
+    sessions        Session[]
+}
+
+model Skill {
+    id       String  @id @default(uuid())
+    name     String  @unique
+    category String? // Simple category as string instead of separate model
+
+    // Relations
+    users   UserSkill[]
+    matches Match[]
+}
+
+model UserSkill {
+    id      String  @id @default(uuid())
+    userId  String
+    skillId String
+    type    String // "teach" or "learn"
+    level   String? // beginner, intermediate, advanced
+
+    // Relations
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, skillId, type])
+}
+
+model Match {
+    id          String      @id @default(uuid())
+    requesterId String
+    receiverId  String
+    skillId     String // The skill being exchanged
+    status      MatchStatus @default(PENDING)
+    message     String?
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+
+    // Relations
+    requester User      @relation("requester", fields: [requesterId], references: [id])
+    receiver  User      @relation("receiver", fields: [receiverId], references: [id])
+    skill     Skill     @relation(fields: [skillId], references: [id])
+    sessions  Session[]
+    messages  Message[]
+}
+
+model Session {
+    id          String        @id @default(uuid())
+    matchId     String
+    teacherId   String // User teaching
+    learnerId   String // User learning
+    scheduledAt DateTime
+    duration    Int // in minutes
+    status      SessionStatus @default(SCHEDULED)
+    meetingLink String?
+    startedAt   DateTime?
+    endedAt     DateTime?
+
+    // Relations
+    match    Match     @relation(fields: [matchId], references: [id], onDelete: Cascade)
+    teacher  User      @relation("teacher", fields: [teacherId], references: [id])
+    learner  User      @relation("learner", fields: [learnerId], references: [id])
+    feedback Feedback?
+    user     User?     @relation(fields: [userId], references: [id])
+    userId   String?
+}
+
+model Message {
+    id        String   @id @default(uuid())
+    matchId   String
+    senderId  String
+    content   String
+    createdAt DateTime @default(now())
+    isRead    Boolean  @default(false)
+
+    // Relations
+    match  Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+    sender User  @relation(fields: [senderId], references: [id])
+}
+
+model Feedback {
+    id        String   @id @default(uuid())
+    sessionId String   @unique
+    rating    Int // 1-5
+    comment   String?
+    createdAt DateTime @default(now())
+
+    // Relations
+    session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Availability {
+    id        String @id @default(uuid())
+    userId    String
+    day       Int // 0-6 (Sunday-Saturday)
+    startTime String // "09:00"
+    endTime   String // "17:00"
+
+    // Relations
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+    id        String           @id @default(uuid())
+    userId    String
+    type      NotificationType
+    title     String
+    message   String?
+    relatedId String? // ID of related entity (match, session, etc.)
+    isRead    Boolean          @default(false)
+    createdAt DateTime         @default(now())
+
+    // Relations
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
