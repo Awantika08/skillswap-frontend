@@ -23,7 +23,6 @@ export default function SkillCategoryPage() {
   });
 
   const categories = data?.data?.categories || [];
-  const pagination = data?.data?.pagination;
 
   const filteredCategories = useMemo(
     () =>
@@ -40,11 +39,7 @@ export default function SkillCategoryPage() {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
-    setCurrentPage(1); // Reset to first page on search
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setCurrentPage(1);
   };
 
   const handlePageSizeChange = (size: number) => {

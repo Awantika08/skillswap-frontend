@@ -153,17 +153,6 @@ export function UserTable({
         onRetry={onRetry}
         emptyMessage="No users found"
       />
-
-      {/* Pagination */}
-      {/* {pagination && pagination.pages > 1 && onPageChange && (
-        <div className="mt-4">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={pagination.pages}
-            onPageChange={onPageChange}
-          />
-        </div>
-      )} */}
     </div>
   );
 }

@@ -23,7 +23,7 @@ import { usePathname } from "next/navigation";
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavAdmin } from "@/components/nav-admin";
 import {
   Sidebar,
   SidebarContent,
@@ -36,6 +36,11 @@ import {
 import { useAuthStore } from "@/store/authStore"; // Import your auth store
 
 const data = {
+  admin: {
+    name: "shadcn",
+    email: "admin@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
   navMain: [
     {
       title: "Dashboard",
@@ -183,7 +188,7 @@ export function AdminAppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <NavAdmin admin={data.admin} />
       </SidebarFooter>
     </Sidebar>
   );

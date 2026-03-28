@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/authStore";
 
-export function NavUser({
-  user,
+export function NavMentor({
+  mentor,
 }: {
-  user: {
+  mentor: {
     name: string;
     email: string;
     avatar: string;
@@ -47,6 +47,18 @@ export function NavUser({
     router.push("/login");
   };
 
+  const handleProfile = () => {
+    router.push("/mentor/profile");
+  };
+
+  const handleBilling = () => {
+    router.push("/mentor/billing");
+  };
+
+  const handleNotifications = () => {
+    router.push("/mentor/notifications");
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -57,15 +69,15 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={mentor.avatar} alt={mentor.name} />
                 <AvatarFallback className="rounded-lg">
-                  {user.name?.charAt(0) || "U"}
+                  {mentor.name?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate font-medium">{mentor.name}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
+                  {mentor.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -80,30 +92,30 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={mentor.avatar} alt={mentor.name} />
                   <AvatarFallback className="rounded-lg">
-                    {user.name?.charAt(0) || "U"}
+                    {mentor.name?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{mentor.name}</span>
                   <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
+                    {mentor.email}
                   </span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleProfile}>
                 <IconUserCircle />
-                Account
+                Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleBilling}>
                 <IconCreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleNotifications}>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>

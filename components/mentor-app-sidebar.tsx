@@ -22,7 +22,7 @@ import {
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
+import { NavMentor } from "@/components/nav-mentor";
 import {
   Sidebar,
   SidebarContent,
@@ -34,9 +34,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const data = {
-  user: {
+  mentor: {
     name: "shadcn",
-    email: "m@example.com",
+    email: "mentor@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
@@ -178,7 +178,7 @@ export function MentorAppSidebar({
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavMentor mentor={data.mentor} />
       </SidebarFooter>
     </Sidebar>
   );
