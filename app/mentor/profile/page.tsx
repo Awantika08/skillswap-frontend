@@ -20,7 +20,6 @@ const MentorProfile = () => {
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
 
-
   const handleToggleNotification = async (
     type: "email" | "inApp",
     value: boolean,
@@ -60,8 +59,6 @@ const MentorProfile = () => {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-
-
       {/* Tabs: Profile & Skills */}
       <Tabs defaultValue="profile">
         <TabsList>
@@ -82,12 +79,6 @@ const MentorProfile = () => {
         <TabsContent value="profile" className="space-y-6 pt-4">
           {/* Editable Profile Form */}
           <EditProfileForm profile={profile} />
-
-          {/* Notification Preferences */}
-          <NotificationPreferences
-            profile={profile}
-            onToggle={handleToggleNotification}
-          />
 
           {/* Account Actions */}
           <div className="flex justify-end gap-4">

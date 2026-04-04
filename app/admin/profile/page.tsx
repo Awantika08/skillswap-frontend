@@ -17,7 +17,6 @@ const AdminProfile = () => {
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
 
-
   const handleToggleNotification = async (
     type: "email" | "inApp",
     value: boolean,
@@ -64,12 +63,6 @@ const AdminProfile = () => {
     <div className="container mx-auto space-y-6 p-6">
       {/* Editable Profile Form */}
       <EditProfileForm profile={profile} />
-
-      {/* Notification Preferences */}
-      <NotificationPreferences
-        profile={profile}
-        onToggle={handleToggleNotification}
-      />
 
       {/* Optional: Account Actions */}
       <div className="flex justify-end gap-4">
