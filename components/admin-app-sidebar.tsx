@@ -57,98 +57,6 @@ const data = {
       url: "/admin/users", // Updated URL
       icon: IconChartBar,
     },
-    {
-      title: "Projects",
-      url: "/admin/projects", // Updated URL
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "/admin/team", // Updated URL
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "/admin/capture", // Updated URL
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/capture/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/capture/archived",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "/admin/proposal", // Updated URL
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/proposal/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/proposal/archived",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "/admin/prompts", // Updated URL
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/prompts/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/prompts/archived",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/admin/settings", // Updated URL
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "/admin/help", // Updated URL
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "/admin/search", // Updated URL
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "/admin/data-library", // Updated URL
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "/admin/reports", // Updated URL
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "/admin/word-assistant", // Updated URL
-      icon: IconFileWord,
-    },
   ],
 };
 
@@ -184,8 +92,6 @@ export function AdminAppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavAdmin admin={data.admin} />
