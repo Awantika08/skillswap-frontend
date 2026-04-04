@@ -20,13 +20,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/authStore";
+import { useProfileStore } from "@/store/profileStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function NavMentor({
   mentor,
@@ -40,9 +37,13 @@ export function NavMentor({
   const { isMobile } = useSidebar();
   const router = useRouter();
   const clearAuth = useAuthStore((state) => state.clearAuth);
+  const clearProfile = useProfileStore((state) => state.clearProfile);
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     clearAuth();
+    clearProfile();
+    queryClient.clear();
     toast.success("Logged out successfully");
     router.push("/login");
   };

@@ -3,26 +3,23 @@
 import React from "react";
 import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
 import { useProfileStore } from "@/store/profileStore";
-import { ProfileHeader } from "@/components/profile/profileHeader";
-import { ProfileInfoCard } from "@/components/profile/profileInfoCard";
+import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import { NotificationPreferences } from "@/components/profile/notificationPreference";
 import { ProfileSkeleton } from "@/components/profile/profileSkeleton";
 import { MentorSkillTab } from "@/components/mentorSkill/MentorSkillTab";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil, User, BookOpen } from "lucide-react";
+import { User, BookOpen, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { MentorAvailabilityTab } from "@/components/mentorAvailability/MentorAvailabilityTab";
 
 const MentorProfile = () => {
   const router = useRouter();
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
 
-  const handleEditProfile = () => {
-    router.push("/mentor/profile/edit");
-  };
 
   const handleToggleNotification = async (
     type: "email" | "inApp",
@@ -63,14 +60,7 @@ const MentorProfile = () => {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-      {/* Header with Edit Button */}
-      <div className="flex items-start justify-between">
-        <ProfileHeader profile={profile} />
-        <Button onClick={handleEditProfile} variant="outline" size="sm">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit Profile
-        </Button>
-      </div>
+
 
       {/* Tabs: Profile & Skills */}
       <Tabs defaultValue="profile">
@@ -83,11 +73,15 @@ const MentorProfile = () => {
             <BookOpen className="h-4 w-4" />
             Skills
           </TabsTrigger>
+          <TabsTrigger value="availability" className="gap-1.5">
+            <Clock className="h-4 w-4" />
+            Availability
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6 pt-4">
-          {/* Profile Information */}
-          <ProfileInfoCard profile={profile} />
+          {/* Editable Profile Form */}
+          <EditProfileForm profile={profile} />
 
           {/* Notification Preferences */}
           <NotificationPreferences
@@ -108,6 +102,10 @@ const MentorProfile = () => {
 
         <TabsContent value="skills" className="pt-4">
           <MentorSkillTab />
+        </TabsContent>
+
+        <TabsContent value="availability" className="pt-4">
+          <MentorAvailabilityTab />
         </TabsContent>
       </Tabs>
     </div>

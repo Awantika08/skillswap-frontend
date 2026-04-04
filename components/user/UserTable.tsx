@@ -3,6 +3,7 @@
 import React from "react";
 import { format } from "date-fns";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,6 +63,13 @@ export function UserTable({
     }
   };
 
+  const getFullImageUrl = (url: string | null) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
+    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -78,7 +86,7 @@ export function UserTable({
       cell: (item: User) => (
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={item.ProfileImageURL || ""} />
+            <AvatarImage src={getFullImageUrl(item.ProfileImageURL)} />
             <AvatarFallback>{getInitials(item.FullName)}</AvatarFallback>
           </Avatar>
           <span className="font-medium">{item.FullName}</span>
@@ -128,9 +136,11 @@ export function UserTable({
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit User
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/users/${item.UserID}/edit`} className="flex items-center">
+                <Edit className="mr-2 h-4 w-4" />
+                Edit User
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-red-600">

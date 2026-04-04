@@ -4,13 +4,11 @@
 import React, { useEffect } from "react";
 import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
 import { useProfileStore } from "@/store/profileStore";
-import { ProfileHeader } from "@/components/profile/profileHeader";
-import { ProfileInfoCard } from "@/components/profile/profileInfoCard";
+import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import { NotificationPreferences } from "@/components/profile/notificationPreference";
 import { ProfileSkeleton } from "@/components/profile/profileSkeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -19,9 +17,6 @@ const AdminProfile = () => {
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
 
-  const handleEditProfile = () => {
-    router.push("/mentor/profile/edit");
-  };
 
   const handleToggleNotification = async (
     type: "email" | "inApp",
@@ -67,17 +62,8 @@ const AdminProfile = () => {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-      {/* Header with Edit Button */}
-      <div className="flex items-start justify-between">
-        <ProfileHeader profile={profile} />
-        <Button onClick={handleEditProfile} variant="outline" size="sm">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit Profile
-        </Button>
-      </div>
-
-      {/* Profile Information */}
-      <ProfileInfoCard profile={profile} />
+      {/* Editable Profile Form */}
+      <EditProfileForm profile={profile} />
 
       {/* Notification Preferences */}
       <NotificationPreferences

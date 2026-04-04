@@ -14,6 +14,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { EditSkillCategoryDialog } from "./EditSkillCategoryDialog";
+// import { useDeleteSkillCategory } from "@/features/skillCategory/hooks/useDeleteSkillCategory"; // Assuming this might be needed later or exists
+
 interface SkillCategoryTableProps {
   data: SkillCategory[];
   isLoading: boolean;
@@ -54,7 +57,9 @@ export function SkillCategoryTable({
       key: "Description",
       header: "Description",
       cell: (item: SkillCategory) => (
-        <div className="max-w-md truncate">{item.Description}</div>
+        <div className="max-w-md truncate text-muted-foreground">
+          {item.Description || "No description"}
+        </div>
       ),
     },
     {
@@ -98,6 +103,16 @@ export function SkillCategoryTable({
         onRetry={onRefetch}
         emptyMessage="No skill categories found"
       />
+
+      {/* Edit Dialog */}
+      <EditSkillCategoryDialog
+        category={selectedCategory}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSuccess={onRefetch}
+      />
+
+      {/* Delete Confirmation (Placeholder for now or implement if you have the hook) */}
     </>
   );
 }

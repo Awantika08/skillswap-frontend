@@ -16,6 +16,17 @@ export interface CreateSkillCategoryResponse {
   data: SkillCategory;
 }
 
+// ---------- Bulk Create Skill Category ----------
+export interface BulkCreateSkillCategoryPayload {
+  categories: CreateSkillCategoryPayload[];
+}
+
+export interface BulkCreateSkillCategoryResponse {
+  success: boolean;
+  message: string;
+  data?: SkillCategory[];
+}
+
 // ---------- Get All Skill Categories ----------
 export interface GetAllSkillCategoriesResponse {
   success: boolean;

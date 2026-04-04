@@ -47,6 +47,7 @@ export function useLogin() {
             name: apiData.user.FullName,
             email: apiData.user.Email,
             role: apiData.user.Role,
+            image: apiData.user.ProfileImageURL,
           },
         };
       } catch (err: any) {

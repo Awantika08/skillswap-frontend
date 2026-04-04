@@ -7,17 +7,13 @@ export interface Profile {
   UserID: string;
   FullName: string;
   Email: string;
-  PasswordHash: string;
-  Role: "Mentor" | "Student" | "Admin"; // Add other roles as needed
+  Role: "Mentor" | "Student" | "Admin";
+  Status: "Active" | "Inactive" | "Suspended";
   Bio: string | null;
   ProfileImageURL: string | null;
-  CreatedAt: string; // ISO date string
-  PasswordResetToken: string | null;
-  PasswordResetExpires: string | null; // ISO date string or null
-  Status: "Active" | "Inactive" | "Suspended"; // Add other statuses as needed
-  UpdatedAt: string; // ISO date string
-  NotificationPreferences: NotificationPreferences;
   Timezone: string;
+  NotificationPreferences: NotificationPreferences;
+  CreatedAt: string; // ISO date string
 }
 
 export interface ProfileResponse {

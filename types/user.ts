@@ -9,6 +9,11 @@ export interface User {
   Status: "Active" | "Inactive" | "Suspended";
   Bio: string | null;
   ProfileImageURL: string | null;
+  Timezone: string;
+  NotificationPreferences: {
+    email: boolean;
+    inApp: boolean;
+  };
   CreatedAt: string;
 }
 
@@ -62,3 +67,18 @@ export interface DeleteUserResponse {
   success: boolean;
   message?: string;
 }
+
+// ---------- Update User Interface ----------
+export interface UpdateUserPayload {
+  fullName?: string;
+  bio?: string;
+  profileImage?: File | null;
+  timezone?: string;
+  status?: "Active" | "Inactive" | "Suspended";
+}
+
+export interface UpdateUserResponse {
+  success: boolean;
+  data: User;
+}
+

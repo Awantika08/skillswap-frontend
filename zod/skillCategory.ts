@@ -23,6 +23,17 @@ export type CreateSkillCategoryFormValues = z.infer<
   typeof createSkillCategorySchema
 >;
 
+// ---------- Bulk Create Skill Category Schema ----------
+export const bulkCreateSkillCategorySchema = z.object({
+  categories: z
+    .array(createSkillCategorySchema)
+    .min(1, "At least one category is required"),
+});
+
+export type BulkCreateSkillCategoryFormValues = z.infer<
+  typeof bulkCreateSkillCategorySchema
+>;
+
 // ---------- Update Skill Category Schema ----------
 export const updateSkillCategorySchema = z
   .object({

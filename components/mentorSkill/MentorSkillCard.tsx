@@ -5,7 +5,9 @@ import { MentorSkill } from "@/types/skill";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, BookOpen, GraduationCap } from "lucide-react";
+import { Pencil, BookOpen, GraduationCap, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { useToggleMentorSkill } from "@/features/mentorSkill/hooks/useToggleMentorSkill";
 
 interface MentorSkillCardProps {
   skill: MentorSkill;
@@ -21,6 +23,15 @@ const experienceLabelMap: Record<number, string> = {
 };
 
 export const MentorSkillCard = ({ skill, onEdit }: MentorSkillCardProps) => {
+  const { mutate: toggleSkill, isPending } = useToggleMentorSkill();
+
+  const handleToggle = (checked: boolean) => {
+    toggleSkill({
+      skillId: skill.SkillID,
+      isAvailable: checked,
+    });
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
@@ -28,14 +39,26 @@ export const MentorSkillCard = ({ skill, onEdit }: MentorSkillCardProps) => {
           <CardTitle className="text-lg">{skill.Name}</CardTitle>
           <p className="text-sm text-muted-foreground">{skill.Description}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onEdit(skill)}
-          className="h-8 w-8"
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-2">
+          {isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          ) : (
+            <Switch
+              checked={skill.IsAvailable}
+              onCheckedChange={handleToggle}
+              disabled={isPending}
+              aria-label="Toggle availability"
+            />
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(skill)}
+            className="h-8 w-8"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Detailed Content */}
@@ -64,7 +87,7 @@ export const MentorSkillCard = ({ skill, onEdit }: MentorSkillCardProps) => {
               Available
             </Badge>
           ) : (
-            <Badge variant="destructive">Unavailable</Badge>
+            <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Unavailable</Badge>
           )}
         </div>
       </CardContent>

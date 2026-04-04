@@ -45,7 +45,19 @@ export interface UpdateMentorSkillPayload {
   teachingStyle?: string;
 }
 
+
 export interface UpdateMentorSkillResponse {
+  success: boolean;
+  data: MentorSkill;
+}
+
+// ---------- Toggle Mentor Skill Availability ----------
+export interface ToggleMentorSkillAvailabilityPayload {
+  skillId: string;
+  isAvailable: boolean;
+}
+
+export interface ToggleMentorSkillAvailabilityResponse {
   success: boolean;
   data: MentorSkill;
 }
