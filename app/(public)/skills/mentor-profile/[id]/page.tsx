@@ -28,6 +28,7 @@ import {
 import { chatApi } from "@/features/chat/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { SessionRequestModal } from "@/features/videoSession/components/SessionRequestModal";
 
 export default function MentorProfilePage() {
   const params = useParams();
@@ -39,6 +40,7 @@ export default function MentorProfilePage() {
   const availability = availabilityResponse?.data;
   
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
   const handleChat = async () => {
     try {
@@ -271,6 +273,7 @@ export default function MentorProfilePage() {
                   </Button>
 
                   <Button 
+                    onClick={() => setIsRequestModalOpen(true)}
                     className="grow rounded-full shadow-lg shadow-primary/20 px-8 text-base font-semibold group flex items-center gap-2"
                   >
                     <MessageSquarePlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -278,6 +281,16 @@ export default function MentorProfilePage() {
                   </Button>
                 </div>
               </div>
+
+              {isRequestModalOpen && (
+                <SessionRequestModal
+                  isOpen={isRequestModalOpen}
+                  onClose={() => setIsRequestModalOpen(false)}
+                  mentorId={id}
+                  mentorName={mentor.FullName}
+                  skills={mentor.skills}
+                />
+              )}
 
               {/* Bio */}
               <div className="mt-6 pt-6 border-t border-border/40">
