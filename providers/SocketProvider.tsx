@@ -76,6 +76,13 @@ export default function SocketProvider({
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>
       {children}
+      {isConnected && <SessionNotificationListener />}
     </SocketContext.Provider>
   );
+}
+
+function SessionNotificationListener() {
+  const { useSessionSocket } = require("@/features/videoSession/hooks/useSessionSocket");
+  useSessionSocket();
+  return null;
 }
