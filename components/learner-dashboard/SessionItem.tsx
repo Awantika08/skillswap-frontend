@@ -3,62 +3,113 @@
 import React from "react";
 import { Clock, Video, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import api from "@/lib/api";
+import { toast } from "react-hot-toast";
+import { format } from "date-fns";
+import Link from "next/link";
 
 interface SessionItemProps {
-  title: string;
-  mentor: string;
-  time: string;
-  type: string;
+  session: any;
+  proposedSlots: any[];
   icon: React.ReactNode;
   iconBg: string;
-  isJoinable?: boolean;
 }
 
 export const SessionItem = ({
-  title,
-  mentor,
-  time,
-  type,
+  session,
+  proposedSlots,
   icon,
   iconBg,
-  isJoinable = false,
 }: SessionItemProps) => {
+  const [isSelecting, setIsSelecting] = React.useState<string | null>(null);
+  const router = React.useMemo(() => ({}), []); // Placeholder if needed, but we'll use window/hooks
+
+  const handleSelectSlot = async (slotId: string) => {
+    try {
+      setIsSelecting(slotId);
+      const res = await api.post(`/sessions/${session.SessionID}/time-slots/${slotId}/select`);
+      if (res.data.success) {
+        toast.success("Session scheduled successfully!");
+        // We rely on socket to invalidate the dashboard query
+      }
+    } catch (error: any) {
+      console.error("Select slot error", error);
+      toast.error(error.response?.data?.errors?.[0]?.message || "Failed to select slot.");
+    } finally {
+      setIsSelecting(null);
+    }
+  };
+
+  const isJoinable = session.Status === 'IN_PROGRESS' || session.Status === 'SCHEDULED';
+  const showSlots = session.Status === 'PENDING_MATCH' && proposedSlots.length > 0;
+  const timeStr = session.ScheduledStart 
+    ? format(new Date(session.ScheduledStart), "h:mm a, MMM dd")
+    : "TBD";
+
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 hover:border-border transition-all bg-card/50">
-      <div className="flex items-center gap-4">
-        <div className={`p-3 rounded-lg ${iconBg} bg-opacity-20 flex items-center justify-center`}>
-          {icon}
-        </div>
-        <div className="space-y-1">
-          <h4 className="text-sm font-semibold text-foreground tracking-tight">
-            {title}
-          </h4>
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            with <span className="font-medium text-foreground/80">{mentor}</span>
-          </p>
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground pt-1">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {time}
-            </span>
-            <span className="flex items-center gap-1">
-              <Video className="w-3 h-3" />
-              {type}
-            </span>
+    <div className="flex flex-col gap-3 p-4 rounded-3xl border border-border/40 hover:border-border transition-all bg-card/50">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className={`p-3 rounded-2xl ${iconBg} bg-opacity-20 flex items-center justify-center`}>
+            {icon}
+          </div>
+          <div className="space-y-0.5">
+            <h4 className="text-sm font-bold text-foreground tracking-tight">
+              {session.Title}
+            </h4>
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+              with <span className="font-semibold text-foreground/80">{session.MentorName}</span>
+            </p>
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {timeStr}
+              </span>
+              <span className="flex items-center gap-1">
+                <Video className="w-3 h-3" />
+                {session.MeetingProvider || "Video"}
+              </span>
+            </div>
           </div>
         </div>
+        <div>
+          {isJoinable ? (
+            <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-5 h-8 text-[11px] font-bold shadow-lg shadow-rose-500/20" asChild>
+                <Link href={`/learner/video-call/${session.SessionID}`}>Join</Link>
+            </Button>
+          ) : session.Status === 'PENDING_MATCH' ? (
+                <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 text-[10px] font-bold">
+                    {proposedSlots.length > 0 ? "Action Required" : "Requested"}
+                </Badge>
+          ) : (
+            <Button variant="outline" size="sm" className="rounded-full px-5 h-8 text-[11px] font-bold border-primary/20 hover:bg-primary/5 transition-all text-primary hover:border-primary/50">
+              Details
+            </Button>
+          )}
+        </div>
       </div>
-      <div>
-        {isJoinable ? (
-          <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-5 h-8 text-xs font-semibold shadow-sm">
-            Join
-          </Button>
-        ) : (
-          <Button variant="outline" size="sm" className="rounded-full px-5 h-8 text-xs font-semibold border-primary/20 hover:bg-primary/5 transition-all text-primary hover:border-primary/50">
-            Details
-          </Button>
-        )}
-      </div>
+
+      {showSlots && (
+        <div className="pt-2 border-t border-dashed border-border/50">
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Mentor Proposed Times:</p>
+            <div className="flex flex-wrap gap-2">
+                {proposedSlots.map((slot: any) => (
+                    <Button 
+                        key={slot.TimeSlotID}
+                        variant="ghost" 
+                        size="sm"
+                        className="h-auto py-1.5 px-3 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 text-[10px] font-bold flex flex-col items-start gap-0"
+                        onClick={() => handleSelectSlot(slot.TimeSlotID)}
+                        disabled={!!isSelecting}
+                    >
+                        <span className="text-muted-foreground text-[8px] uppercase">{format(new Date(slot.StartTime), "eee, MMM d")}</span>
+                        <span>{format(new Date(slot.StartTime), "h:mm a")}</span>
+                    </Button>
+                ))}
+            </div>
+        </div>
+      )}
     </div>
   );
 };
