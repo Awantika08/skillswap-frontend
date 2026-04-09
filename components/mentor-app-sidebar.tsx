@@ -47,6 +47,11 @@ const data = {
       icon: IconDashboard,
     },
     {
+      title: "Sessions",
+      url: "/mentor/sessions",
+      icon: IconListDetails,
+    },
+    {
       title: "Messages",
       url: "/mentor/chat",
       icon: IconMessage,
