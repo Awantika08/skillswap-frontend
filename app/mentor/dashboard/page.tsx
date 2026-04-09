@@ -2,6 +2,7 @@
 
 import StatsGrid from "@/components/mentorDashboardUI/StatsGrid";
 import PendingSessionRequests from "@/components/mentorDashboardUI/PendingSessionRequests";
+import UpcomingSessions from "@/components/mentorDashboardUI/UpcomingSessions";
 import SkillsYouTeach from "@/components/mentorDashboardUI/SkillsYouTeach";
 import RecentFeedback from "@/components/mentorDashboardUI/RecentFeedback";
 
@@ -33,6 +34,7 @@ export default function MentorDashboardPage() {
           
           {/* Left Column (2/3 width on large screens) */}
           <div className="lg:col-span-2 space-y-6">
+            <UpcomingSessions />
             <PendingSessionRequests />
           </div>
           
