@@ -5,9 +5,10 @@ import Link from "next/link";
 import {
   Menu,
   X,
-  LogOut,
   User as UserIcon,
   LayoutDashboard,
+  Star,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
@@ -49,6 +50,12 @@ export default function Navigation() {
     if (role === "admin") return "/admin/profile";
     if (role === "mentor") return "/mentor/profile";
     return "/learner/profile";
+  };
+
+  const getReviewsHref = () => {
+    const role = user?.role?.toLowerCase();
+    if (role === "mentor") return "/mentor/reviews";
+    return "/learner/reviews";
   };
 
   const getFullImageUrl = (url: string | null | undefined) => {
@@ -148,6 +155,17 @@ export default function Navigation() {
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
+                  {user?.role?.toLowerCase() !== "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={getReviewsHref()}
+                        className="cursor-pointer w-full flex items-center"
+                      >
+                        <Star className="mr-2 h-4 w-4" />
+                        <span>My Reviews</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
@@ -234,6 +252,16 @@ export default function Navigation() {
                     <UserIcon className="h-4 w-4" />
                     Profile
                   </Link>
+                  {user?.role?.toLowerCase() !== "admin" && (
+                    <Link
+                      href={getReviewsHref()}
+                      onClick={closeMenu}
+                      className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors px-2"
+                    >
+                      <Star className="h-4 w-4" />
+                      My Reviews
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 transition-colors px-2 py-2 rounded-lg text-left"
