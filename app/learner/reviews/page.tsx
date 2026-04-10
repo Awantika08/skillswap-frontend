@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReview";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
 import { Loader2 } from "lucide-react";

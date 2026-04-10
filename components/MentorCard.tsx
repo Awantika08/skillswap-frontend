@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, BookOpen, Clock, User, Loader2 } from "lucide-react";
 import MentorAvatar from "./MentorAvatar";
-import { useGetUserReviewStats } from "@/features/reviews/hooks/useReviews";
+import { useGetUserReviewStats } from "@/features/reviews/hooks/useReview";
 
 interface MentorCardProps {
   id: string;

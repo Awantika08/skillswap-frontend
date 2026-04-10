@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Star, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReview";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
 

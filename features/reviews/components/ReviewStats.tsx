@@ -55,7 +55,7 @@ export function ReviewStatsOverview({ stats }: ReviewStatsProps) {
                 <Progress
                   value={percentage}
                   className="h-2.5 bg-gray-100 dark:bg-gray-800"
-                  indicatorcolor="bg-yellow-400"
+                  
                 />
                 <div className="min-w-[30px] text-xs text-gray-500 text-right">
                   {count}

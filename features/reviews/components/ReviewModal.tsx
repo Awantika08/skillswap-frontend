@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useSubmitReview } from "../hooks/useReviews";
+import { useSubmitReview } from "../hooks/useReview";
 import { toast } from "react-hot-toast";
 import { Loader2, Star, Tag as TagIcon } from "lucide-react";
 import { cn } from "@/lib/utils";

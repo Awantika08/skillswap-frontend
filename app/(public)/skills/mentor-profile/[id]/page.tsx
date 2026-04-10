@@ -31,7 +31,7 @@ import toast from "react-hot-toast";
 import { SessionRequestModal } from "@/features/videoSession/components/SessionRequestModal";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
-import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReviews";
+import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReview";
 
 export default function MentorProfilePage() {
   const params = useParams();

@@ -14,7 +14,7 @@ import { User, BookOpen, Clock, Star, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { MentorAvailabilityTab } from "@/components/mentorAvailability/MentorAvailabilityTab";
-import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReview";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
 
