@@ -2,8 +2,9 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, BookOpen, Clock, User } from "lucide-react";
+import { Star, BookOpen, Clock, User, Loader2 } from "lucide-react";
 import MentorAvatar from "./MentorAvatar";
+import { useGetUserReviewStats } from "@/features/reviews/hooks/useReviews";
 
 interface MentorCardProps {
   id: string;
@@ -30,6 +31,16 @@ export default function MentorCard({
   skillCount,
   skills,
 }: MentorCardProps) {
+  const { data: statsData, isLoading: isLoadingStats } = useGetUserReviewStats(id);
+
+  const displayRating = statsData?.data?.averageRating 
+    ? statsData.data.averageRating.toFixed(1)
+    : avgRating;
+    
+  const displayTotalReviews = statsData?.data?.totalReviews !== undefined
+    ? statsData.data.totalReviews
+    : totalReviews;
+
   const initials = fullName
     .split(" ")
     .map((n) => n[0])
@@ -77,10 +88,16 @@ export default function MentorCard({
               </h3>
               <div className="flex items-center gap-1 mt-1">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-semibold">{avgRating}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({totalReviews} reviews)
-                </span>
+                {isLoadingStats ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground ml-1" />
+                ) : (
+                  <>
+                    <span className="text-sm font-semibold">{displayRating}</span>
+                    <span className="text-xs text-muted-foreground">
+                      ({displayTotalReviews} reviews)
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
