@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import api from "@/lib/api";
+import { useSubmitReview } from "../hooks/useReviews";
 import { toast } from "react-hot-toast";
 import { Loader2, Star, Tag as TagIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,11 +43,11 @@ export function ReviewModal({
   targetName,
   onSuccess,
 }: ReviewModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { mutateAsync: submitReview, isPending: isLoading } = useSubmitReview();
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -63,26 +63,20 @@ export function ReviewModal({
     }
 
     try {
-      setIsLoading(true);
-      const response = await api.post(`/reviews/sessions/${sessionId}/reviews`, {
-        rating,
-        comment,
-        tags: selectedTags,
-        isPublic: true,
+      await submitReview({
+        sessionId,
+        data: {
+          rating,
+          comment,
+          tags: selectedTags,
+          isPublic: true,
+        },
       });
 
-      if (response.data.success) {
-        toast.success("Thank you for your feedback!");
-        onSuccess();
-      }
+      toast.success("Thank you for your feedback!");
+      onSuccess();
     } catch (error: any) {
-      console.error("Review submit error", error);
-      toast.error(
-        error.response?.data?.errors?.[0]?.message ||
-          "Failed to submit review. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
+      // Error handling is already managed by the hook
     }
   };
 
