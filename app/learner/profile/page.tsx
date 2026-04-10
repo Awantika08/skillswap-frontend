@@ -8,13 +8,24 @@ import { NotificationPreferences } from "@/components/profile/notificationPrefer
 import { ProfileSkeleton } from "@/components/profile/profileSkeleton";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Star, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
+import { ReviewList } from "@/features/reviews/components/ReviewList";
+import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
 
 const LearnerProfile = () => {
   const router = useRouter();
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
+
+  const [reviewPage, setReviewPage] = React.useState(1);
+  const { data: reviewsData, isLoading: isLoadingReviews } = useGetMyReviews(
+    reviewPage,
+    10
+  );
 
   const handleToggleNotification = async (
     type: "email" | "inApp",
@@ -57,24 +68,59 @@ const LearnerProfile = () => {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-      {/* Editable Profile Form */}
-      <EditProfileForm profile={profile} />
+      <Tabs defaultValue="profile">
+        <TabsList>
+          <TabsTrigger value="profile" className="gap-1.5">
+            <User className="h-4 w-4" />
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="reviews" className="gap-1.5">
+            <Star className="h-4 w-4" />
+            Reviews
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Notification Preferences */}
-      <NotificationPreferences
-        profile={profile}
-        onToggle={handleToggleNotification}
-      />
+        <TabsContent value="profile" className="space-y-6 pt-4">
+          {/* Editable Profile Form */}
+          <EditProfileForm profile={profile} />
 
-      {/* Account Actions */}
-      <div className="flex justify-end gap-4">
-        <Button
-          variant="outline"
-          onClick={() => router.push("/learner/profile/change-password")}
-        >
-          Change Password
-        </Button>
-      </div>
+          {/* Notification Preferences */}
+          <NotificationPreferences
+            profile={profile}
+            onToggle={handleToggleNotification}
+          />
+
+          {/* Account Actions */}
+          <div className="flex justify-end gap-4">
+            <Button
+              variant="outline"
+              onClick={() => router.push("/learner/profile/change-password")}
+            >
+              Change Password
+            </Button>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reviews" className="pt-4 space-y-8 animate-in fade-in slide-in-from-bottom-4">
+          {isLoadingReviews ? (
+            <div className="flex items-center justify-center p-20">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : reviewsData?.data?.stats ? (
+            <>
+              <ReviewStatsOverview stats={reviewsData.data.stats} />
+              <div className="pt-2">
+                <h3 className="text-xl font-bold mb-4">Recent Reviews</h3>
+                <ReviewList
+                  data={reviewsData}
+                  isLoading={isLoadingReviews}
+                  onPageChange={setReviewPage}
+                />
+              </div>
+            </>
+          ) : null}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

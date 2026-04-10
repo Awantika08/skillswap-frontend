@@ -29,6 +29,9 @@ import { chatApi } from "@/features/chat/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { SessionRequestModal } from "@/features/videoSession/components/SessionRequestModal";
+import { ReviewList } from "@/features/reviews/components/ReviewList";
+import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
+import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReviews";
 
 export default function MentorProfilePage() {
   const params = useParams();
@@ -39,6 +42,10 @@ export default function MentorProfilePage() {
   const { data: availabilityResponse } = useMentorAvailability(id);
   const availability = availabilityResponse?.data;
   
+  const [reviewPage, setReviewPage] = useState(1);
+  const { data: reviewsData, isLoading: isLoadingReviews } = useGetUserReviews(id, reviewPage, 10);
+  const { data: statsData } = useGetUserReviewStats(id);
+
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
 
@@ -193,9 +200,9 @@ export default function MentorProfilePage() {
                     <span className="flex items-center gap-1.5 bg-primary/5 text-primary px-3 py-1 rounded-full border border-primary/10">
                       <Star className="w-4 h-4 fill-primary text-primary" />
                       <span className="font-bold text-foreground">
-                        {mentor.avgRating}
+                        {reviewsData?.data?.stats?.averageRating ? reviewsData.data.stats.averageRating.toFixed(1) : "0.0"}
                       </span>
-                      <span>({mentor.totalReviews} Reviews)</span>
+                      <span>({reviewsData?.data?.stats?.totalReviews || 0} Reviews)</span>
                     </span>
                     <span className="flex items-center gap-1.5">
                       <BookOpen className="w-4 h-4" />
@@ -392,6 +399,29 @@ export default function MentorProfilePage() {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-extrabold text-foreground flex items-center gap-3">
+              <span className="bg-primary/10 text-primary p-2 rounded-xl">
+                <Star className="w-6 h-6" />
+              </span>
+              Student Reviews
+            </h2>
+          </div>
+
+          <div className="space-y-8">
+            {statsData?.data && statsData.data.totalReviews > 0 && (
+              <ReviewStatsOverview stats={statsData.data} />
+            )}
+            <ReviewList
+              data={reviewsData}
+              isLoading={isLoadingReviews}
+              onPageChange={setReviewPage}
+            />
+          </div>
         </div>
       </div>
     </div>
