@@ -1,15 +1,14 @@
 import React from "react";
-import { Badge } from "@/components/ui/badge";
-import { Users, Clock } from "lucide-react";
+import { Users } from "lucide-react";
 
 interface MeetingHeaderProps {
   title: string;
   duration: string;
   participantCount: number;
-  status: string;
+  status?: string;
 }
 
-export function MeetingHeader({ title, duration, participantCount, status }: MeetingHeaderProps) {
+export function MeetingHeader({ title, duration, participantCount }: MeetingHeaderProps) {
   return (
     <header className="absolute top-0 left-0 right-0 h-20 flex items-center justify-between px-8 z-40 bg-linear-to-b from-black/60 to-transparent pointer-events-none">
       <div className="flex items-center gap-4 pointer-events-auto">
@@ -22,7 +21,7 @@ export function MeetingHeader({ title, duration, participantCount, status }: Mee
       </div>
 
       <div className="flex items-center gap-3 pointer-events-auto">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950/20 backdrop-blur-xl border border-white/5 text-[11px] font-bold text-white/80 shadow-2xl transition-all hover:bg-zinc-950/30">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-950/30 backdrop-blur-xl border border-white/5 text-[11px] font-bold text-white/80 shadow-2xl transition-all hover:bg-zinc-950/50">
           <Users className="w-3.5 h-3.5 text-primary" />
           <span>{participantCount}</span>
         </div>

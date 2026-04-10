@@ -1,9 +1,9 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Mic, MicOff, 
-  Video, VideoOff, 
-  ScreenShare, StopCircle,
+import {
+  Mic, MicOff,
+  Video, VideoOff,
+  ScreenShare,
   PhoneOff,
   Settings,
   MoreVertical,
@@ -22,8 +22,8 @@ interface CallControlsProps {
   isVideoOff: boolean;
   isScreenSharing: boolean;
   onToggleAudio: () => void;
-  onToggleVideo: () => void;
-  onToggleScreenShare: () => void;
+  onToggleVideo: () => void | Promise<void>;
+  onToggleScreenShare: () => void | Promise<void>;
   onLeave: () => void;
   onToggleChat?: () => void;
   isChatOpen?: boolean;
