@@ -18,6 +18,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconStar,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
@@ -55,6 +56,11 @@ const data = {
       title: "Messages",
       url: "/mentor/chat",
       icon: IconMessage,
+    },
+    {
+      title: "Reviews",
+      url: "/mentor/reviews",
+      icon: IconStar,
     },
   ],
 };
