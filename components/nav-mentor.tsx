@@ -20,10 +20,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
 
 export function NavMentor({
   mentor,
@@ -39,6 +45,13 @@ export function NavMentor({
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const clearProfile = useProfileStore((state) => state.clearProfile);
   const queryClient = useQueryClient();
+  const { refetch } = useGetProfile();
+
+  const handleOpenChange = (open: boolean) => {
+    if (open) {
+      refetch();
+    }
+  };
 
   const handleLogout = () => {
     clearAuth();
@@ -52,18 +65,10 @@ export function NavMentor({
     router.push("/mentor/profile");
   };
 
-  const handleBilling = () => {
-    router.push("/mentor/billing");
-  };
-
-  const handleNotifications = () => {
-    router.push("/mentor/notifications");
-  };
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu onOpenChange={handleOpenChange}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -111,14 +116,6 @@ export function NavMentor({
               <DropdownMenuItem onClick={handleProfile}>
                 <IconUserCircle />
                 Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleBilling}>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleNotifications}>
-                <IconNotification />
-                Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

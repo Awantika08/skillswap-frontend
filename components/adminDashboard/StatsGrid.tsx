@@ -49,16 +49,18 @@ export default function StatsGrid({ stats, isLoading }: StatsGridProps) {
     },
     {
       label: "Avg Rating",
-      value: stats?.reviews.avg_rating !== "0" ? stats?.reviews.avg_rating : "N/A",
+      value: stats?.reviews.avg_rating && stats.reviews.avg_rating !== "0" 
+        ? parseFloat(stats.reviews.avg_rating).toFixed(1) 
+        : "N/A",
       icon: Star,
-      subtitle: "out of 5.0",
+      subtitle: `${stats?.reviews.total_reviews} total reviews`,
       color: "from-yellow-500 to-yellow-600",
     },
     {
       label: "Total Skills",
       value: stats?.skills.total_skills,
       icon: BookOpen,
-      subtitle: `${stats?.skills.total_categories} categories`,
+      subtitle: `${stats?.skills.available_skills} available`,
       color: "from-pink-500 to-pink-600",
     },
   ];

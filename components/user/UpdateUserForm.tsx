@@ -20,6 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Upload, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface UpdateUserFormProps {
   user: User;
@@ -42,12 +43,6 @@ const timezones = [
   "Europe/London",
 ];
 
-const getFullImageUrl = (url: string | null) => {
-  if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("data:")) return url;
-  const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-  return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-};
 
 export const UpdateUserForm = ({
   user,

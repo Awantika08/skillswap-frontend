@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { useGetDashboardStats, useGetAdminAlerts, useGetUserGrowth, useGetSessionTrends } from "@/features/adminDashboard/hooks/useAdminDashboard";
 import StatsGrid from "@/components/adminDashboard/StatsGrid";
 import AlertsSection from "@/components/adminDashboard/AlertsSection";
@@ -8,19 +9,24 @@ import SessionTrendsChart from "@/components/adminDashboard/SessionTrendChart";
 import SessionsOverview from "@/components/adminDashboard/SessionOverview";
 import ReviewsSection from "@/components/adminDashboard/ReviewsSection";
 import ReportsSection from "@/components/adminDashboard/ReportsSection";
-import EngagementMetrics from "@/components/adminDashboard/EngagementMetrics";
 import SkillsOverview from "@/components/adminDashboard/SkillsOverview";
 
 export default function DashboardPage() {
   const { data: statsData, isLoading: statsLoading } = useGetDashboardStats();
   const { data: alertsData, isLoading: alertsLoading } = useGetAdminAlerts();
-  const { data: userGrowthData, isLoading: userGrowthLoading } = useGetUserGrowth();
-  const { data: sessionTrendsData, isLoading: sessionTrendsLoading } = useGetSessionTrends();
+  const { data: userGrowthData, isLoading: userGrowthLoading = true } = useGetUserGrowth();
+  const { data: sessionTrendsData, isLoading: sessionTrendsLoading = true } = useGetSessionTrends();
 
   const stats = statsData?.data;
   const alerts = alertsData?.data;
   const userGrowth = userGrowthData?.data;
   const sessionTrends = sessionTrendsData?.data;
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -36,7 +42,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="text-xs text-gray-400 dark:text-gray-500">
-            Last updated: {new Date().toLocaleDateString()}
+            Last updated: {mounted ? new Date().toLocaleDateString() : "Loading..."}
           </div>
         </div>
 
@@ -63,7 +69,6 @@ export default function DashboardPage() {
           <ReviewsSection stats={stats} isLoading={statsLoading} />
           <div className="space-y-6">
             <ReportsSection stats={stats} isLoading={statsLoading} />
-            <EngagementMetrics stats={stats} isLoading={statsLoading} />
           </div>
         </div>
       </div>

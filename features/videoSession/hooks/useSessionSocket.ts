@@ -45,6 +45,8 @@ export function useSessionSocket() {
         });
         queryClient.invalidateQueries({ queryKey: ["learner", "sessions"] });
       }
+      // Always invalidate the specific session query to trigger UI updates in VideoRoom
+      queryClient.invalidateQueries({ queryKey: ["video-session", data.sessionId] });
     };
 
     // 4. Session Cancelled (for Both)
@@ -63,6 +65,7 @@ export function useSessionSocket() {
       });
       queryClient.invalidateQueries({ queryKey: ["mentor", "sessions"] });
       queryClient.invalidateQueries({ queryKey: ["learner", "sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["video-session", data.sessionId] });
     };
 
     // 6. New Time Slots Proposed (for Learner)

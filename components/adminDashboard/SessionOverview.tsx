@@ -30,7 +30,7 @@ export default function SessionsOverview({ stats, isLoading }: SessionsOverviewP
   const pendingMatch = parseInt(stats?.sessions.pending_match || "0");
   const inProgress = parseInt(stats?.sessions.in_progress || "0");
   const cancelled = parseInt(stats?.sessions.cancelled || "0");
-  
+
   const completionRate = totalSessions > 0 ? (completed / totalSessions) * 100 : 0;
 
   return (
@@ -43,15 +43,21 @@ export default function SessionsOverview({ stats, isLoading }: SessionsOverviewP
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary Stats */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3">
             <p className="text-xs text-gray-600 dark:text-gray-400">Total Sessions</p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalSessions}</p>
+            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{totalSessions}</p>
           </div>
           <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-lg p-3">
             <p className="text-xs text-gray-600 dark:text-gray-400">Completion Rate</p>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
               {completionRate.toFixed(0)}%
+            </p>
+          </div>
+          <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-3">
+            <p className="text-xs text-gray-600 dark:text-gray-400">Avg Duration</p>
+            <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+              {stats?.sessions.avg_duration_minutes ? parseFloat(stats.sessions.avg_duration_minutes).toFixed(1) : "0.0"}m
             </p>
           </div>
         </div>

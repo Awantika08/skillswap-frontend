@@ -17,6 +17,7 @@ import {
   IconSearch,
   IconSettings,
   IconUsers,
+  IconNotification,
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 
@@ -33,14 +34,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/store/authStore"; // Import your auth store
+import { useAuthStore } from "@/store/authStore";
+import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
+import { useProfileStore } from "@/store/profileStore";
+import { getFullImageUrl } from "@/lib/utils";
 
 const data = {
-  admin: {
-    name: "shadcn",
-    email: "admin@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -57,6 +56,11 @@ const data = {
       url: "/admin/users", // Updated URL
       icon: IconChartBar,
     },
+    {
+      title: "Notifications",
+      url: "/admin/notifications",
+      icon: IconNotification,
+    },
   ],
 };
 
@@ -65,12 +69,14 @@ export function AdminAppSidebar({
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { user } = useAuthStore(); // Get actual user from auth store
+  useGetProfile(); // Fetch full profile data
+  const { profile } = useProfileStore();
 
-  // Use actual user data from auth store
+  // Use actual user data from profile store, fallback to auth store
   const userData = {
-    name: user?.name || "Admin User",
-    email: user?.email || "admin@example.com",
-    avatar: user?.avatar || "/avatars/default.jpg",
+    name: profile?.FullName || user?.name || "Admin User",
+    email: profile?.Email || user?.email || "admin@example.com",
+    avatar: getFullImageUrl(profile?.ProfileImageURL || user?.image),
   };
 
   return (
@@ -80,10 +86,10 @@ export function AdminAppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="/admin/dashboard">
-                <IconInnerShadowTop className="!size-5" />
+                <IconInnerShadowTop className="size-5!" />
                 <span className="text-base font-semibold">Admin Dashboard</span>
               </a>
             </SidebarMenuButton>
@@ -94,7 +100,7 @@ export function AdminAppSidebar({
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavAdmin admin={data.admin} />
+        <NavAdmin admin={userData} />
       </SidebarFooter>
     </Sidebar>
   );

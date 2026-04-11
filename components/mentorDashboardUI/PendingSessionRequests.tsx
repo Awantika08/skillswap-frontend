@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { format } from "date-fns";
 import { ProposeSlotsModal } from "@/features/videoSession/components/ProposeSlotsModal";
+import { getFullImageUrl } from "@/lib/utils";
 
 export default function PendingSessionRequests() {
   const [selectedSession, setSelectedSession] = useState<{ id: string, learnerName: string } | null>(null);
@@ -59,8 +60,8 @@ export default function PendingSessionRequests() {
           >
             <div className="flex items-start gap-4 mb-4">
               <Avatar className="h-12 w-12 border border-gray-100 dark:border-gray-800">
-                <AvatarImage
-                  src={session.LearnerImage}
+                 <AvatarImage
+                  src={getFullImageUrl(session.LearnerImage)}
                   alt={session.LearnerName}
                 />
                 <AvatarFallback>{session.LearnerName?.charAt(0)}</AvatarFallback>

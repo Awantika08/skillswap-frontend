@@ -3,52 +3,59 @@ import {
   CalendarDays, 
   UserCheck, 
   Star, 
-  MessageSquare,
+  TrendingUp,
   Clock,
-  CalendarCheck
+  BookOpen,
+  Users
 } from "lucide-react";
+import { OverviewStats, SessionStats } from "@/types/mentorDashboard";
 
-export default function StatsGrid() {
+interface StatsGridProps {
+  overview?: OverviewStats;
+  sessions?: SessionStats;
+}
+
+export default function StatsGrid({ overview, sessions }: StatsGridProps) {
   const statCards = [
     {
       label: "Total Sessions",
-      value: "156",
+      value: overview?.totalSessions ?? 0,
       icon: CalendarDays,
       color: "from-red-400 to-red-500",
       textColor: "text-red-500"
     },
     {
-      label: "Students Helped",
-      value: "89",
-      icon: UserCheck,
+      label: "Teaching Hours",
+      value: overview?.totalTeachingHours?.toFixed(1) ?? "0.0",
+      icon: Clock,
       color: "from-emerald-400 to-emerald-500",
       textColor: "text-emerald-500"
     },
     {
       label: "Average Rating",
-      value: "4.9",
+      value: overview?.averageRating ?? "0.0",
       icon: Star,
       color: "from-amber-400 to-amber-500",
       textColor: "text-amber-500"
     },
     {
-      label: "Total Reviews",
-      value: "234",
-      icon: MessageSquare,
+      label: "Completion Rate",
+      value: `${overview?.completionRate ?? 0}%`,
+      icon: TrendingUp,
       color: "from-purple-400 to-purple-500",
       textColor: "text-purple-500"
     },
     {
-      label: "Pending Requests",
-      value: "7",
-      icon: Clock,
+      label: "Active Skills",
+      value: overview?.activeSkills ?? 0,
+      icon: BookOpen,
       color: "from-rose-400 to-rose-500",
       textColor: "text-rose-500"
     },
     {
-      label: "Upcoming Sessions",
-      value: "5",
-      icon: CalendarCheck,
+      label: "Total Learners",
+      value: overview?.totalLearners ?? 0,
+      icon: Users,
       color: "from-blue-400 to-blue-500",
       textColor: "text-blue-500"
     },
@@ -59,18 +66,18 @@ export default function StatsGrid() {
       {statCards.map((card, index) => (
         <Card 
           key={index} 
-          className="relative p-5 hover:shadow-md transition-all duration-300 border-t-4 border-transparent hover:border-t-primary group bg-white dark:bg-gray-900 flex flex-col justify-between h-full"
+          className="relative p-5 hover:shadow-md transition-all duration-300 border-t-4 border-transparent hover:border-t-primary group bg-white dark:bg-gray-900 flex flex-col justify-between h-full overflow-hidden shadow-sm border-gray-100 dark:border-gray-800"
         >
           <div className="flex justify-between items-start mb-4">
-            <div className={`p-2.5 rounded-xl bg-gradient-to-br ${card.color} bg-opacity-10 shadow-sm shadow-${card.color.split("-")[1]}-500/20`}>
-              <card.icon className="h-5 w-5 text-white" />
+            <div className={`p-2 rounded-lg bg-gradient-to-br ${card.color} shadow-sm`}>
+              <card.icon className="h-4 w-4 text-white" />
             </div>
           </div>
           <div>
-             <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
               {card.value}
             </h3>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
               {card.label}
             </p>
           </div>

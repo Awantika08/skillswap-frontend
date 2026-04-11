@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Star,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
@@ -22,12 +23,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUnreadCount } from "@/features/chat/hooks";
+import { NotificationPopover } from "@/components/notifications/notification-popover";
+import { getFullImageUrl } from "@/lib/utils";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const router = useRouter();
+  const isNonAdmin = !!user && user?.role?.toLowerCase() !== "admin";
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = isNonAdmin ? (unreadData?.data?.unreadCount ?? 0) : 0;
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -52,26 +59,26 @@ export default function Navigation() {
     return "/learner/profile";
   };
 
+  const getMySessionsHref = () => {
+    const role = user?.role?.toLowerCase();
+    if (role === "learner") return "/learner/sessions";
+    if (role === "mentor") return "/mentor/sessions";
+    return "/admin/sessions";
+  };
+
   const getReviewsHref = () => {
     const role = user?.role?.toLowerCase();
     if (role === "mentor") return "/mentor/reviews";
     return "/learner/reviews";
   };
 
-  const getFullImageUrl = (url: string | null | undefined) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   const initials = user?.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
     : "U";
 
   const navLinks = [
@@ -91,7 +98,7 @@ export default function Navigation() {
               </span>
             </div>
             <span className="font-bold text-lg text-foreground hidden sm:inline">
-              Skill-Swap
+              Skill Swap
             </span>
           </Link>
 
@@ -106,6 +113,25 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
+            {/* Chat Icon — desktop, non-admin only */}
+            {isNonAdmin && (
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/chat"
+                  id="nav-chat-link-desktop"
+                  className="relative p-2 rounded-full hover:bg-secondary transition-colors text-foreground hover:text-primary"
+                  aria-label="Messages"
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1 animate-pulse">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+                <NotificationPopover />
+              </div>
+            )}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -158,11 +184,40 @@ export default function Navigation() {
                   {user?.role?.toLowerCase() !== "admin" && (
                     <DropdownMenuItem asChild>
                       <Link
+                        href={getMySessionsHref()}
+                        className="cursor-pointer w-full flex items-center"
+                      >
+                        <Star className="mr-2 h-4 w-4" />
+                        <span>My Sessions</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+
+                  {user?.role?.toLowerCase() !== "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link
                         href={getReviewsHref()}
                         className="cursor-pointer w-full flex items-center"
                       >
                         <Star className="mr-2 h-4 w-4" />
                         <span>My Reviews</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {user?.role?.toLowerCase() !== "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/chat"
+                        className="cursor-pointer w-full flex items-center"
+                        id="nav-chat-link-dropdown"
+                      >
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        <span>Messages</span>
+                        {unreadCount > 0 && (
+                          <span className="ml-auto min-w-[20px] h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -226,13 +281,16 @@ export default function Navigation() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col flex-1">
                       <span className="text-sm font-medium text-foreground">
                         {user.name}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {user.email}
                       </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <NotificationPopover />
                     </div>
                   </div>
                   <DropdownMenuSeparator />
@@ -260,6 +318,22 @@ export default function Navigation() {
                     >
                       <Star className="h-4 w-4" />
                       My Reviews
+                    </Link>
+                  )}
+                  {user?.role?.toLowerCase() !== "admin" && (
+                    <Link
+                      href="/chat"
+                      onClick={closeMenu}
+                      id="nav-chat-link-mobile"
+                      className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors px-2"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
+                      {unreadCount > 0 && (
+                        <span className="ml-auto min-w-[20px] h-5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
+                      )}
                     </Link>
                   )}
                   <button

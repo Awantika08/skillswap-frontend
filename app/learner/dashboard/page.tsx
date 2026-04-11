@@ -1,52 +1,61 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { WelcomeHeader } from "@/components/learner-dashboard/WelcomeHeader";
 import { StatCard } from "@/components/learner-dashboard/StatCard";
 import { DashboardTabs } from "@/components/learner-dashboard/DashboardTabs";
 import { SessionsSection } from "@/components/learner-dashboard/SessionsSection";
 import { QuickActions } from "@/components/learner-dashboard/QuickActions";
 import { useAuthStore } from "@/store/authStore";
-import { BookOpen, Users, Calendar, Star } from "lucide-react";
+import { BookOpen, Users, Calendar, Star, Timer, GraduationCap, RefreshCcw } from "lucide-react";
+import { useLearnerStats } from "@/features/learner/hooks/useLearnerStats";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export default function LearnerDashboardPage() {
   const user = useAuthStore((state) => state.user);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const stats = [
-    {
-      label: "Skills Learning",
-      value: 8,
-      icon: BookOpen,
-      iconBgColor: "bg-rose-50",
-      iconColor: "text-rose-500",
-      trend: { value: "+12%", type: "positive" as const },
-    },
-    {
-      label: "Skills Teaching",
-      value: 5,
-      icon: Users,
-      iconBgColor: "bg-emerald-50",
-      iconColor: "text-emerald-500",
-      trend: { value: "+5", type: "positive" as const },
-    },
-    {
-      label: "Upcoming Sessions",
-      value: 3,
-      icon: Calendar,
-      iconBgColor: "bg-indigo-50",
-      iconColor: "text-indigo-500",
-      statusBadge: "Today",
-    },
-    {
-      label: "Average Rating",
-      value: 4.9,
-      icon: Star,
-      iconBgColor: "bg-amber-50",
-      iconColor: "text-amber-500",
-      statusBadge: "Excellent",
-    },
-  ];
+  const { data: statsResponse, isLoading, error, refetch } = useLearnerStats();
+
+  const stats = useMemo(() => {
+    if (!statsResponse?.data) return [];
+
+    const d = statsResponse.data;
+    return [
+      {
+        label: "Sessions Completed",
+        value: d.overview.completedSessions,
+        icon: GraduationCap,
+        iconBgColor: "bg-rose-50",
+        iconColor: "text-rose-500",
+      },
+      {
+        label: "Learning Hours",
+        value: d.overview.totalLearningHours.toFixed(1),
+        icon: Timer,
+        iconBgColor: "bg-emerald-50",
+        iconColor: "text-emerald-500",
+      },
+      {
+        label: "Nearby Sessions",
+        value: d.sessions.scheduled + d.sessions.inProgress,
+        icon: Calendar,
+        iconBgColor: "bg-indigo-50",
+        iconColor: "text-indigo-500",
+        statusBadge: d.sessions.inProgress > 0 ? "Live Now" : "Upcoming",
+      },
+      {
+        label: "Active Mentors",
+        value: d.overview.totalMentors,
+        icon: Users,
+        iconBgColor: "bg-amber-50",
+        iconColor: "text-amber-500",
+        statusBadge: "Connected",
+      },
+    ];
+  }, [statsResponse]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -54,11 +63,29 @@ export default function LearnerDashboardPage() {
       <WelcomeHeader name={user?.name || "Learner"} />
 
       {/* Stats Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+          ))}
+        </div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertDescription className="flex items-center justify-between">
+            <span>Failed to load your statistics.</span>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCcw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </div>
+      )}
 
       {/* Navigation Tabs */}
       <DashboardTabs activeTab={activeTab} onTabChange={setActiveTab} />

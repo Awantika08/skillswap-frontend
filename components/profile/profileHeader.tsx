@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Profile } from "@/types/profile";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface ProfileHeaderProps {
   profile: Profile;
@@ -26,7 +27,7 @@ export const ProfileHeader = ({ profile }: ProfileHeaderProps) => {
     <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0">
       <Avatar className="h-24 w-24">
         <AvatarImage
-          src={profile.ProfileImageURL || ""}
+          src={getFullImageUrl(profile.ProfileImageURL)}
           alt={profile.FullName}
         />
         <AvatarFallback className="text-2xl">

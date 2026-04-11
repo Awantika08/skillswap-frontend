@@ -117,6 +117,28 @@ export function useChatSocket({
         String(message.ConversationID) === String(conversationId)
       ) {
         if (onNewMessage) onNewMessage(message);
+
+        // Replace optimistic placeholder in the messages cache with real message
+        queryClient.setQueryData(
+          ["messages", conversationId, 50, undefined],
+          (oldData: any) => {
+            if (!oldData?.data) return oldData;
+            const exists = oldData.data.some(
+              (m: any) => String(m.MessageID) === String(message.MessageID),
+            );
+            if (exists) return oldData;
+            // Replace optimistic message matching by content, or just append
+            const filtered = oldData.data.filter(
+              (m: any) =>
+                !(
+                  m.MessageID.toString().startsWith("optimistic-") &&
+                  m.Content === message.Content
+                ),
+            );
+            return { ...oldData, data: [...filtered, message] };
+          },
+        );
+
         queryClient.refetchQueries({ queryKey: ["messages", conversationId] });
       }
       updateConversationPreview(message);

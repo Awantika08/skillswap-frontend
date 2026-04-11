@@ -9,6 +9,7 @@ interface Participant {
   isOff?: boolean;
   isMuted?: boolean;
   isSharing?: boolean;
+  isLocal?: boolean;
 }
 
 interface UseWebRTCProps {
@@ -40,36 +41,91 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const isScreenSharingRef = useRef(false);
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+
+  const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedAudioId, setSelectedAudioId] = useState<string>("");
+  const [selectedVideoId, setSelectedVideoId] = useState<string>("");
+
   // Helper: replace the video track in all peer connections
   const replaceVideoTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
     peerConnections.current.forEach((pc) => {
       const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
       if (videoSender && newTrack) {
         videoSender.replaceTrack(newTrack).catch((err) =>
-          console.error("[WebRTC] replaceTrack error:", err)
+          console.error("[WebRTC] replaceVideoTrack error:", err)
         );
       }
     });
   }, []);
 
+  const replaceAudioTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
+    peerConnections.current.forEach((pc) => {
+      const audioSender = pc.getSenders().find((s) => s.track?.kind === "audio");
+      if (audioSender && newTrack) {
+        audioSender.replaceTrack(newTrack).catch((err) =>
+          console.error("[WebRTC] replaceAudioTrack error:", err)
+        );
+      }
+    });
+  }, []);
+
+  const enumerateDevices = useCallback(async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audios = devices.filter(d => d.kind === "audioinput");
+      const videos = devices.filter(d => d.kind === "videoinput");
+      setAudioDevices(audios);
+      setVideoDevices(videos);
+
+      // Set defaults if not already set
+      if (audios.length > 0 && !selectedAudioId) {
+        const defaultAudio = audios.find(d => d.deviceId === "default") || audios[0];
+        setSelectedAudioId(defaultAudio.deviceId);
+      }
+      if (videos.length > 0 && !selectedVideoId) {
+        setSelectedVideoId(videos[0].deviceId);
+      }
+    } catch (err) {
+      console.error("[WebRTC] Error enumerating devices:", err);
+    }
+  }, [selectedAudioId, selectedVideoId]);
+
   /**
    * Initialize Local Camera+Mic Stream
    */
-  const initLocalMedia = useCallback(async () => {
+  const initLocalMedia = useCallback(async (audioId?: string, videoId?: string) => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: true,
-      });
+      const constraints = {
+        video: { 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 },
+          deviceId: videoId ? { exact: videoId } : undefined
+        },
+        audio: {
+          deviceId: audioId ? { exact: audioId } : undefined
+        },
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       localStreamRef.current = stream;
       cameraStreamRef.current = stream;
       setLocalStream(stream);
+
+      // Find actual device IDs from the granted stream
+      const aTrack = stream.getAudioTracks()[0];
+      const vTrack = stream.getVideoTracks()[0];
+      if (aTrack && !selectedAudioId) setSelectedAudioId(aTrack.getSettings().deviceId || "");
+      if (vTrack && !selectedVideoId) setSelectedVideoId(vTrack.getSettings().deviceId || "");
+
       return stream;
     } catch (error) {
       console.error("[WebRTC] Error accessing media devices:", error);
       return null;
     }
-  }, []);
+  }, [selectedAudioId, selectedVideoId]);
 
   /**
    * Create a Peer Connection for a remote socket
@@ -127,6 +183,14 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     [socket]
   );
 
+  const leaveRoom = useCallback(() => {
+    socket?.emit("webrtc:leave-room");
+    peerConnections.current.forEach((pc) => pc.close());
+    peerConnections.current.clear();
+    localStreamRef.current?.getTracks().forEach((t) => t.stop());
+    setParticipants(new Map());
+  }, [socket]);
+
   /**
    * Main signaling effect
    */
@@ -136,6 +200,7 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     const startSignaling = async () => {
       const stream = await initLocalMedia();
       if (!stream) return;
+      await enumerateDevices();
       socket.emit("webrtc:join-room", { roomId, userId, userName });
     };
 
@@ -146,6 +211,12 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
       console.log(`[WebRTC] User joined: ${remoteName}`);
       setParticipants((prev) => {
         const next = new Map(prev);
+        // Clean up any existing stale connection for this user
+        for (const [oldSid, p] of next.entries()) {
+          if (p.userId === remoteId && oldSid !== socketId) {
+            next.delete(oldSid);
+          }
+        }
         next.set(socketId, { socketId, userId: remoteId, userName: remoteName });
         return next;
       });
@@ -155,16 +226,23 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     const handleExistingParticipants = async (existingParticipants: any[]) => {
       console.log(`[WebRTC] ${existingParticipants.length} existing participants`);
       for (const p of existingParticipants) {
+        setParticipants((prev) => {
+          const next = new Map(prev);
+          // Clean up any stale connection for this user
+          for (const [oldSid, pt] of next.entries()) {
+            if (pt.userId === p.userId && oldSid !== p.socketId) {
+              next.delete(oldSid);
+            }
+          }
+          next.set(p.socketId, { socketId: p.socketId, userId: p.userId, userName: p.userName });
+          return next;
+        });
+
         const pc = createPeerConnection(p.socketId, p.userName, p.userId);
         try {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
           socket.emit("webrtc:offer", { to: p.socketId, offer });
-          setParticipants((prev) => {
-            const next = new Map(prev);
-            next.set(p.socketId, { socketId: p.socketId, userId: p.userId, userName: p.userName });
-            return next;
-          });
         } catch (err) {
           console.error(`[WebRTC] Error creating offer for ${p.userName}:`, err);
         }
@@ -175,13 +253,21 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     const handleOffer = async ({ from, offer, fromUserId, fromUserName }: any) => {
       console.log(`[WebRTC] Received offer from ${fromUserName}`);
       let pc = peerConnections.current.get(from);
+
+      setParticipants((prev) => {
+        const next = new Map(prev);
+        // Ensure participant exists and is unique by userId
+        for (const [oldSid, p] of next.entries()) {
+          if (p.userId === fromUserId && oldSid !== from) {
+            next.delete(oldSid);
+          }
+        }
+        next.set(from, { socketId: from, userId: fromUserId, userName: fromUserName });
+        return next;
+      });
+
       if (!pc) {
         pc = createPeerConnection(from, fromUserName, fromUserId);
-        setParticipants((prev) => {
-          const next = new Map(prev);
-          next.set(from, { socketId: from, userId: fromUserId, userName: fromUserName });
-          return next;
-        });
       }
       try {
         await pc.setRemoteDescription(new RTCSessionDescription(offer));
@@ -235,17 +321,37 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     const handleStatusUpdate = (type: "audio" | "video" | "screen") => (data: any) => {
       setParticipants((prev) => {
         const next = new Map(prev);
+        // Find by userId or socketId if available
         for (const [socketId, p] of next.entries()) {
-          if (p.userId === data.userId) {
+          if (p.userId === data.userId || socketId === data.from) {
             const updated = { ...p };
             if (type === "audio") updated.isMuted = data.isMuted;
-            if (type === "video") updated.isOff = data.isOff;
-            if (type === "screen") updated.isSharing = data.isSharing;
+            if (type === "video") {
+              updated.isOff = data.isOff;
+              // Force fresh stream reference on video toggle to re-sync tracks
+              if (p.stream) {
+                updated.stream = new MediaStream(p.stream.getTracks());
+              }
+            }
+            if (type === "screen") {
+              updated.isSharing = data.isSharing;
+              // Force a fresh stream reference if sharing status changed
+              // This helps triggering re-renders in RemoteVideo components
+              if (p.stream) {
+                updated.stream = new MediaStream(p.stream.getTracks());
+              }
+            }
             next.set(socketId, updated);
           }
         }
         return next;
       });
+    };
+
+    const handleChatMessage = (msg: any) => {
+      setMessages((prev) => [...prev, { ...msg, isLocal: false }]);
+      // We'll set hasNewMessage to true. The VideoRoom can clear it when chat is open.
+      setHasNewMessage(true);
     };
 
     socket.on("webrtc:user-joined", handleUserJoined);
@@ -257,6 +363,7 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     socket.on("webrtc:audio-status", handleStatusUpdate("audio"));
     socket.on("webrtc:video-status", handleStatusUpdate("video"));
     socket.on("webrtc:screen-share-status", handleStatusUpdate("screen"));
+    socket.on("webrtc:chat-message", handleChatMessage);
 
     return () => {
       socket.off("webrtc:user-joined");
@@ -268,12 +375,14 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
       socket.off("webrtc:audio-status");
       socket.off("webrtc:video-status");
       socket.off("webrtc:screen-share-status");
+      socket.off("webrtc:chat-message");
 
       peerConnections.current.forEach((pc) => pc.close());
       peerConnections.current.clear();
       localStreamRef.current?.getTracks().forEach((t) => t.stop());
+      leaveRoom();
     };
-  }, [socket, isConnected, roomId, userId, userName, initLocalMedia, createPeerConnection]);
+  }, [socket, isConnected, roomId, userId, userName, initLocalMedia, createPeerConnection, leaveRoom, enumerateDevices]);
 
   /**
    * Toggle audio mute
@@ -416,23 +525,102 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
     }
   }, [startScreenShare, stopScreenShare]);
 
-  const leaveRoom = useCallback(() => {
-    socket?.emit("webrtc:leave-room");
-    peerConnections.current.forEach((pc) => pc.close());
-    peerConnections.current.clear();
-    localStreamRef.current?.getTracks().forEach((t) => t.stop());
-    setParticipants(new Map());
-  }, [socket]);
+  const sendChatMessage = useCallback((text: string) => {
+    if (!text.trim() || !socket) return;
+    const msg = {
+      text,
+      senderId: userId,
+      senderName: userName,
+      timestamp: new Date().toISOString(),
+    };
+    socket.emit("webrtc:chat-message", msg);
+    setMessages((prev) => [...prev, { ...msg, isLocal: true }]);
+  }, [socket, userId, userName]);
+
+  const switchAudioDevice = useCallback(async (deviceId: string) => {
+    try {
+      const constraints = { audio: { deviceId: { exact: deviceId } }, video: false };
+      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      const newTrack = newStream.getAudioTracks()[0];
+
+      const currentStream = localStreamRef.current;
+      if (currentStream) {
+        // Stop old audio tracks
+        currentStream.getAudioTracks().forEach(t => t.stop());
+        
+        // Build new stream: new audio track + existing video tracks
+        const videoTracks = currentStream.getVideoTracks();
+        const freshStream = new MediaStream([newTrack, ...videoTracks]);
+        
+        localStreamRef.current = freshStream;
+        setLocalStream(freshStream);
+        
+        // Replace in peers
+        replaceAudioTrackInPeers(newTrack);
+        setSelectedAudioId(deviceId);
+        
+        // If it was muted, we might need to keep it muted or enable it
+        newTrack.enabled = !isMuted;
+      }
+    } catch (err) {
+      console.error("[WebRTC] Error switching audio device:", err);
+    }
+  }, [isMuted, replaceAudioTrackInPeers]);
+
+  const switchVideoDevice = useCallback(async (deviceId: string) => {
+    try {
+      const constraints = { video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false };
+      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      const newTrack = newStream.getVideoTracks()[0];
+
+      const currentStream = localStreamRef.current;
+      if (currentStream) {
+        // Stop old video tracks
+        currentStream.getVideoTracks().forEach(t => t.stop());
+
+        // Build new stream: new video track + existing audio tracks
+        const audioTracks = currentStream.getAudioTracks();
+        const freshStream = new MediaStream([newTrack, ...audioTracks]);
+
+        localStreamRef.current = freshStream;
+        cameraStreamRef.current = freshStream;
+        setLocalStream(freshStream);
+
+        // Replace in peers
+        replaceVideoTrackInPeers(newTrack);
+        setSelectedVideoId(deviceId);
+
+        // If video was off, turning it on now
+        if (isVideoOff) {
+          setIsVideoOff(false);
+          socket?.emit("webrtc:toggle-video", { isOff: false });
+        }
+      }
+    } catch (err) {
+      console.error("[WebRTC] Error switching video device:", err);
+    }
+  }, [isVideoOff, socket, replaceVideoTrackInPeers]);
+
 
   return {
     localStream,
     participants: Array.from(participants.values()),
+    messages,
+    hasNewMessage,
+    setHasNewMessage,
+    audioDevices,
+    videoDevices,
+    selectedAudioId,
+    selectedVideoId,
     isMuted,
     isVideoOff,
     isScreenSharing,
     toggleAudio,
     toggleVideo,
     toggleScreenShare,
+    switchAudioDevice,
+    switchVideoDevice,
+    sendChatMessage,
     leaveRoom,
   };
 }

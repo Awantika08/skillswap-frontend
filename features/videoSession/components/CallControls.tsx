@@ -1,21 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Mic, MicOff,
   Video, VideoOff,
   ScreenShare,
   PhoneOff,
-  Settings,
   MoreVertical,
-  MessageSquare
+  MessageSquare,
+  Users,
+  Info,
+  Hand,
+  ChevronUp,
+  Smile,
+  Type,
+  LayoutGrid,
+  ShieldCheck,
+  Check
 } from "lucide-react";
-import { 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger 
+  TooltipTrigger
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useParams } from "next/navigation";
 
 interface CallControlsProps {
   isMuted: boolean;
@@ -26,7 +43,20 @@ interface CallControlsProps {
   onToggleScreenShare: () => void | Promise<void>;
   onLeave: () => void;
   onToggleChat?: () => void;
+  onTogglePeople?: () => void;
+  onToggleInfo?: () => void;
+  participantCount: number;
   isChatOpen?: boolean;
+  isPeopleOpen?: boolean;
+  isInfoOpen?: boolean;
+  hasNewMessage?: boolean;
+  duration: string;
+  audioDevices?: MediaDeviceInfo[];
+  videoDevices?: MediaDeviceInfo[];
+  selectedAudioId?: string;
+  selectedVideoId?: string;
+  onSwitchAudio?: (id: string) => void;
+  onSwitchVideo?: (id: string) => void;
 }
 
 export function CallControls({
@@ -38,137 +68,238 @@ export function CallControls({
   onToggleScreenShare,
   onLeave,
   onToggleChat,
+  onTogglePeople,
+  onToggleInfo,
+  participantCount,
   isChatOpen,
+  isPeopleOpen,
+  isInfoOpen,
+  hasNewMessage,
+  duration,
+  audioDevices = [],
+  videoDevices = [],
+  selectedAudioId,
+  selectedVideoId,
+  onSwitchAudio,
+  onSwitchVideo,
 }: CallControlsProps) {
-  const [time, setTime] = React.useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
- 
-  React.useEffect(() => {
+  const { sessionId } = useParams() as { sessionId: string };
+  const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
+
+  const roomCode = sessionId.substring(0, 11);
+
+  useEffect(() => {
     const timer = setInterval(() => {
-      setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
     }, 10000);
     return () => clearInterval(timer);
   }, []);
- 
+
+  const controlButtonClass = "w-10 h-10 rounded-full transition-all duration-200 border-none flex items-center justify-center p-0";
+  const activeControlClass = "bg-[#3c4043] hover:bg-[#434649] text-white";
+  const inactiveControlClass = "bg-[#ea4335] hover:bg-[#fb5e4c] text-white";
+  const secondaryControlClass = "bg-transparent hover:bg-white/10 text-white/90";
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-20 flex items-center justify-between px-8 bg-zinc-950/95 backdrop-blur-xl z-50 animate-in slide-in-from-bottom-5 duration-700">
-      {/* Left section: Time and Info */}
-      <div className="flex-1 flex items-center gap-6 text-white/90">
-        <div className="text-[13px] font-bold tracking-tight border-r border-white/10 pr-6 opacity-80">{time}</div>
-        <div className="text-[11px] font-bold uppercase tracking-[0.2em] hidden lg:block text-white/40">
-          Secure Meeting Room
+    <div className="fixed bottom-0 left-0 right-0 h-20 flex items-center justify-between px-6 bg-[#202124] z-50">
+      {/* Left section: Time and Meeting Code */}
+      <div className="flex-1 flex items-center gap-4 min-w-0">
+        <div className="flex items-center gap-4 pr-4 border-r border-white/10 hidden sm:flex">
+          <div className="text-sm font-medium text-white/90">
+            {time}
+          </div>
+          <div className="text-sm font-medium text-emerald-400 font-mono">
+            {duration}
+          </div>
+        </div>
+        <div className="text-sm font-medium text-white/90 truncate">
+          {roomCode}
         </div>
       </div>
- 
-      {/* Middle section: Main Controls */}
-      <div className="flex items-center gap-4">
+
+      {/* Middle section: Main Controls (Google Meet Style) */}
+      <div className="flex items-center gap-2 sm:gap-3">
         <TooltipProvider delayDuration={300}>
           {/* Audio */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "w-12 h-12 rounded-2xl transition-all duration-300 border border-white/5",
-                  isMuted ? "bg-rose-500 hover:bg-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]" : "bg-zinc-800/50 hover:bg-zinc-700/50 text-white"
-                )}
-                onClick={onToggleAudio}
-              >
-                {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-zinc-800 border-white/10 text-[10px] font-bold px-3 py-1.5 rounded-lg">
-              {isMuted ? "UNMUTE" : "MUTE"}
-            </TooltipContent>
-          </Tooltip>
- 
+          <div className="flex items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(controlButtonClass, !isMuted ? activeControlClass : inactiveControlClass)}
+                  onClick={onToggleAudio}
+                >
+                  {!isMuted ? <Mic className="w-[18px] h-[18px]" /> : <MicOff className="w-[18px] h-[18px]" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+                {isMuted ? "Turn on microphone (ctrl + d)" : "Turn off microphone (ctrl + d)"}
+              </TooltipContent>
+            </Tooltip>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-5 h-10 rounded-r-full p-0 flex items-center justify-center text-white/60 hover:bg-white/5 -ml-2">
+                  <ChevronUp className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-64 bg-[#202124] border-white/10 text-white">
+                <DropdownMenuLabel className="text-zinc-500 text-[10px] uppercase tracking-wider">Microphone</DropdownMenuLabel>
+                {audioDevices.map((device) => (
+                  <DropdownMenuItem
+                    key={device.deviceId}
+                    onClick={() => onSwitchAudio?.(device.deviceId)}
+                    className="flex items-center justify-between text-sm py-2 px-3 focus:bg-white/10 focus:text-white cursor-pointer"
+                  >
+                    <span className="truncate flex-1">{device.label || `Microphone ${device.deviceId.slice(0, 5)}`}</span>
+                    {selectedAudioId === device.deviceId && <Check className="w-4 h-4 text-primary ml-2 shrink-0" />}
+                  </DropdownMenuItem>
+                ))}
+                {audioDevices.length === 0 && <DropdownMenuItem disabled>No microphones found</DropdownMenuItem>}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           {/* Video */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "w-12 h-12 rounded-2xl transition-all duration-300 border border-white/5",
-                  isVideoOff ? "bg-rose-500 hover:bg-rose-600 text-white shadow-[0_0_15px_rgba(244,63,94,0.3)]" : "bg-zinc-800/50 hover:bg-zinc-700/50 text-white"
-                )}
-                onClick={onToggleVideo}
-              >
-                {isVideoOff ? <VideoOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-zinc-800 border-white/10 text-[10px] font-bold px-3 py-1.5 rounded-lg">
-              {isVideoOff ? "START VIDEO" : "STOP VIDEO"}
-            </TooltipContent>
-          </Tooltip>
- 
+          <div className="flex items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(controlButtonClass, !isVideoOff ? activeControlClass : inactiveControlClass)}
+                  onClick={onToggleVideo}
+                >
+                  {!isVideoOff ? <Video className="w-[18px] h-[18px]" /> : <VideoOff className="w-[18px] h-[18px]" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+                {isVideoOff ? "Turn on camera (ctrl + e)" : "Turn off camera (ctrl + e)"}
+              </TooltipContent>
+            </Tooltip>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-4 h-10 rounded-r-full p-0 flex items-center justify-center text-white/60 hover:bg-white/5 -ml-1">
+                  <ChevronUp className="w-3 h-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-64 bg-[#202124] border-white/10 text-white">
+                <DropdownMenuLabel className="text-zinc-500 text-[10px] uppercase tracking-wider">Camera</DropdownMenuLabel>
+                {videoDevices.map((device) => (
+                  <DropdownMenuItem
+                    key={device.deviceId}
+                    onClick={() => onSwitchVideo?.(device.deviceId)}
+                    className="flex items-center justify-between text-sm py-2 px-3 focus:bg-white/10 focus:text-white cursor-pointer"
+                  >
+                    <span className="truncate flex-1">{device.label || `Camera ${device.deviceId.slice(0, 5)}`}</span>
+                    {selectedVideoId === device.deviceId && <Check className="w-4 h-4 text-primary ml-2 shrink-0" />}
+                  </DropdownMenuItem>
+                ))}
+                {videoDevices.length === 0 && <DropdownMenuItem disabled>No cameras found</DropdownMenuItem>}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           {/* Screen Share */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon"
-                className={cn(
-                  "w-12 h-12 rounded-2xl transition-all duration-300 border border-white/5 text-white",
-                  isScreenSharing ? "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]" : "bg-zinc-800/50 hover:bg-zinc-700/50"
-                )}
+                className={cn(controlButtonClass, isScreenSharing ? "bg-[#8ab4f8] text-[#202124] hover:bg-[#aecbfa]" : activeControlClass)}
                 onClick={onToggleScreenShare}
               >
-                <ScreenShare className="w-5 h-5" />
+                <ScreenShare className="w-[18px] h-[18px]" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-zinc-800 border-white/10 text-[10px] font-bold px-3 py-1.5 rounded-lg">
-              {isScreenSharing ? "STOP PRESENTING" : "PRESENT NOW"}
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              {isScreenSharing ? "Stop presenting" : "Present now"}
             </TooltipContent>
           </Tooltip>
- 
-          {/* Leave */}
+
+          {/* Leave Call */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="destructive"
-                className="w-20 h-11 rounded-2xl bg-rose-500 hover:bg-rose-600 border-none transition-all duration-300 shadow-[0_10px_20px_rgba(244,63,94,0.25)]"
+                className="w-16 h-10 rounded-full bg-[#ea4335] hover:bg-[#fb5e4c] border-none transition-all duration-200 p-0"
                 onClick={onLeave}
               >
-                <PhoneOff className="w-5 h-5" />
+                <PhoneOff className="w-5 h-5 fill-current" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-zinc-800 border-white/10 text-[10px] font-bold px-3 py-1.5 rounded-lg">
-              LEAVE CALL
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              Leave call
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
- 
-      {/* Right section: Panels */}
-      <div className="flex-1 flex justify-end items-center gap-3">
+
+      {/* Right section: Info, People, Chat, etc. */}
+      <div className="flex-1 flex justify-end items-center gap-1 sm:gap-2">
         <TooltipProvider delayDuration={300}>
-           <Tooltip>
+          <Tooltip>
             <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={onToggleChat} 
-                className={cn(
-                  "w-11 h-11 rounded-xl transition-all duration-300 border border-white/5",
-                  isChatOpen ? "bg-primary text-white" : "text-white/60 hover:text-white hover:bg-zinc-800/50"
-                )}
+              <Button
+                variant="ghost"
+                onClick={onToggleInfo}
+                className={cn(controlButtonClass, secondaryControlClass, isInfoOpen && "bg-white/10")}
               >
-                <MessageSquare className="w-5 h-5" />
+                <Info className="w-5 h-5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-zinc-800 border-white/10 text-[10px] font-bold px-3 py-1.5 rounded-lg">
-              CHAT
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              Meeting details
             </TooltipContent>
           </Tooltip>
- 
-          <Button variant="ghost" size="icon" className="w-11 h-11 rounded-xl text-white/60 hover:text-white hover:bg-zinc-800/50 transition-all border border-white/5">
-            <Settings className="w-5 h-5" />
-          </Button>
- 
-          <Button variant="ghost" size="icon" className="w-11 h-11 rounded-xl text-white/60 hover:text-white hover:bg-zinc-800/50 transition-all border border-white/5">
-            <MoreVertical className="w-5 h-5" />
-          </Button>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                onClick={onTogglePeople}
+                className={cn(controlButtonClass, secondaryControlClass, isPeopleOpen ? "bg-white/10" : "relative")}
+              >
+                <Users className="w-5 h-5" />
+                {!isPeopleOpen && (
+                  <span className="absolute -top-1 -right-1 bg-white text-zinc-900 text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {participantCount}
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              Show everyone
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                onClick={onToggleChat}
+                className={cn(controlButtonClass, secondaryControlClass, isChatOpen ? "bg-white/10" : "relative")}
+              >
+                <MessageSquare className="w-5 h-5" />
+                {!isChatOpen && hasNewMessage && (
+                  <span className="absolute top-0 right-0 bg-[#8ab4f8] rounded-full w-2.5 h-2.5 border-2 border-[#202124]" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              Chat with everyone
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" className={cn(controlButtonClass, secondaryControlClass)}>
+                <ShieldCheck className="w-5 h-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="bg-[#3c4043] border-none text-[11px] font-medium py-1 px-2 mb-2">
+              Host controls
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       </div>
     </div>

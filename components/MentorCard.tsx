@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, BookOpen, Clock, User, Loader2 } from "lucide-react";
 import MentorAvatar from "./MentorAvatar";
-import { useGetUserReviewStats } from "@/features/reviews/hooks/useReview";
+import { useGetUserReviewStats } from "@/features/reviews/hooks/useReviews";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface MentorCardProps {
   id: string;
@@ -59,13 +60,6 @@ export default function MentorCard({
   ];
   const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-  const getFullImageUrl = (url: string | null) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   return (
     <Card className="group h-full flex flex-col hover:shadow-xl transition-all duration-300 border-border/50 overflow-hidden bg-card/50 backdrop-blur-sm">

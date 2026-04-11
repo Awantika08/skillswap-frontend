@@ -1,19 +1,15 @@
-// app/mentor/profile/page.tsx
 "use client";
 
-import React, { useEffect } from "react";
 import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
 import { useProfileStore } from "@/store/profileStore";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
-import { NotificationPreferences } from "@/components/profile/notificationPreference";
 import { ProfileSkeleton } from "@/components/profile/profileSkeleton";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useRouter } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Lock } from "lucide-react";
 import toast from "react-hot-toast";
+import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 
 const AdminProfile = () => {
-  const router = useRouter();
   const { profile, isLoading, error } = useProfileStore();
   const { refetch } = useGetProfile();
 
@@ -21,39 +17,34 @@ const AdminProfile = () => {
     type: "email" | "inApp",
     value: boolean,
   ) => {
-    // Here you would make an API call to update notification preferences
-    // For now, just showing a toast
     toast.success(
       `${type === "email" ? "Email" : "In-App"} notifications ${value ? "enabled" : "disabled"}`,
     );
-
-    // TODO: Implement API call to update preferences
-    // await updateNotificationPreferences({ [type]: value });
   };
 
   if (isLoading) {
     return <ProfileSkeleton />;
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert variant="destructive">
-          <AlertDescription>
-            {error}
-            <Button
-              variant="outline"
-              size="sm"
-              className="ml-4"
-              onClick={() => refetch()}
-            >
-              Try Again
-            </Button>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="container mx-auto p-6">
+  //       <Alert variant="destructive">
+  //         <AlertDescription>
+  //           {error}
+  //           <Button
+  //             variant="outline"
+  //             size="sm"
+  //             className="ml-4"
+  //             onClick={() => refetch()}
+  //           >
+  //             Try Again
+  //           </Button>
+  //         </AlertDescription>
+  //       </Alert>
+  //     </div>
+  //   );
+  // }
 
   if (!profile) {
     return null;
@@ -61,18 +52,27 @@ const AdminProfile = () => {
 
   return (
     <div className="container mx-auto space-y-6 p-6">
-      {/* Editable Profile Form */}
-      <EditProfileForm profile={profile} />
+      <Tabs defaultValue="profile">
+        <TabsList>
+          <TabsTrigger value="profile" className="gap-1.5">
+            <User className="h-4 w-4" />
+            Profile
+          </TabsTrigger>
+          <TabsTrigger value="security" className="gap-1.5">
+            <Lock className="h-4 w-4" />
+            Security
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Optional: Account Actions */}
-      <div className="flex justify-end gap-4">
-        <Button
-          variant="outline"
-          onClick={() => router.push("/mentor/profile/change-password")}
-        >
-          Change Password
-        </Button>
-      </div>
+        <TabsContent value="profile" className="space-y-6 pt-4">
+          {/* Editable Profile Form */}
+          <EditProfileForm profile={profile} />
+        </TabsContent>
+
+        <TabsContent value="security" className="pt-4 max-w-2xl">
+          <ChangePasswordForm />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

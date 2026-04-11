@@ -9,12 +9,13 @@ import { ProfileSkeleton } from "@/components/profile/profileSkeleton";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Star, Loader2 } from "lucide-react";
+import { User, Star, Loader2, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { useGetMyReviews } from "@/features/reviews/hooks/useReview";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
+import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 
 const LearnerProfile = () => {
   const router = useRouter();
@@ -24,7 +25,7 @@ const LearnerProfile = () => {
   const [reviewPage, setReviewPage] = React.useState(1);
   const { data: reviewsData, isLoading: isLoadingReviews } = useGetMyReviews(
     reviewPage,
-    10
+    10,
   );
 
   const handleToggleNotification = async (
@@ -78,30 +79,21 @@ const LearnerProfile = () => {
             <Star className="h-4 w-4" />
             Reviews
           </TabsTrigger>
+          <TabsTrigger value="security" className="gap-1.5">
+            <Lock className="h-4 w-4" />
+            Security
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6 pt-4">
           {/* Editable Profile Form */}
           <EditProfileForm profile={profile} />
-
-          {/* Notification Preferences */}
-          <NotificationPreferences
-            profile={profile}
-            onToggle={handleToggleNotification}
-          />
-
-          {/* Account Actions */}
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/learner/profile/change-password")}
-            >
-              Change Password
-            </Button>
-          </div>
         </TabsContent>
 
-        <TabsContent value="reviews" className="pt-4 space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <TabsContent
+          value="reviews"
+          className="pt-4 space-y-8 animate-in fade-in slide-in-from-bottom-4"
+        >
           {isLoadingReviews ? (
             <div className="flex items-center justify-center p-20">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -119,6 +111,10 @@ const LearnerProfile = () => {
               </div>
             </>
           ) : null}
+        </TabsContent>
+
+        <TabsContent value="security" className="pt-4 max-w-2xl">
+          <ChangePasswordForm />
         </TabsContent>
       </Tabs>
     </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { User, Send, Loader2, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface ChatWindowProps {
   conversationId: string;
@@ -111,10 +112,43 @@ export function ChatWindow({ conversationId, otherUser }: ChatWindowProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTypingRemote]);
 
+  /**
+   * Optimistically update the sidebar conversation list with the new last message.
+   * This mirrors what the socket handler does but runs immediately on send,
+   * so the sidebar preview updates instantly without waiting for a round-trip.
+   */
+  const updateSidebarPreview = (text: string, sentAt: string) => {
+    const sidebarKeys = [
+      ["conversations", 1, 100],
+      ["conversations", 1, 20],
+    ];
+    sidebarKeys.forEach((queryKey) => {
+      queryClient.setQueryData(queryKey, (oldData: any) => {
+        if (!oldData?.data?.conversations) return oldData;
+        const conversations = [...oldData.data.conversations];
+        const index = conversations.findIndex(
+          (c: any) => String(c.ConversationID) === String(conversationId),
+        );
+        if (index !== -1) {
+          const conv = { ...conversations[index] };
+          conv.LastMessage = text;
+          conv.LastMessageAt = sentAt;
+          // Move to top of list
+          conversations.splice(index, 1);
+          conversations.unshift(conv);
+          return { ...oldData, data: { ...oldData.data, conversations } };
+        }
+        return oldData;
+      });
+    });
+  };
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     const text = content.trim();
     if (!text) return;
+
+    const sentAt = new Date().toISOString();
 
     // Optimistic UI: Add to bridge state instantly for zero lag
     const optimisticMsg: Message = {
@@ -131,13 +165,13 @@ export function ChatWindow({ conversationId, otherUser }: ChatWindowProps) {
       EditedAt: null,
       IsDeleted: false,
       DeletedFor: null,
-      CreatedAt: new Date().toISOString(),
-      UpdatedAt: new Date().toISOString(),
+      CreatedAt: sentAt,
+      UpdatedAt: sentAt,
     };
 
     setRecentMessages((prev) => [...prev, optimisticMsg]);
 
-    // Also update global cache as fallback
+    // Update messages cache
     queryClient.setQueryData(
       ["messages", conversationId, 50, undefined],
       (oldData: any) => ({
@@ -145,6 +179,9 @@ export function ChatWindow({ conversationId, otherUser }: ChatWindowProps) {
         data: [...(oldData?.data || []), optimisticMsg],
       }),
     );
+
+    // Immediately update sidebar preview so LastMessage shows without waiting for socket
+    updateSidebarPreview(text, sentAt);
 
     setContent("");
     stopTyping();
@@ -156,7 +193,28 @@ export function ChatWindow({ conversationId, otherUser }: ChatWindowProps) {
       sendMessageREST(
         { content: text },
         {
+          onSuccess: (response) => {
+            // On REST success, replace optimistic with real message
+            const realMsg = (response as any)?.data;
+            if (realMsg) {
+              setRecentMessages((prev) =>
+                prev.map((m) =>
+                  m.MessageID === optimisticMsg.MessageID ? realMsg : m,
+                ),
+              );
+              queryClient.setQueryData(
+                ["messages", conversationId, 50, undefined],
+                (oldData: any) => ({
+                  ...oldData,
+                  data: (oldData?.data || []).map((m: any) =>
+                    m.MessageID === optimisticMsg.MessageID ? realMsg : m,
+                  ),
+                }),
+              );
+            }
+          },
           onError: () => {
+            // Rollback optimistic update
             setRecentMessages((prev) =>
               prev.filter((m) => m.MessageID !== optimisticMsg.MessageID),
             );
@@ -191,13 +249,6 @@ export function ChatWindow({ conversationId, otherUser }: ChatWindowProps) {
     if (typingTimeout.current) clearTimeout(typingTimeout.current);
   };
 
-  const getFullImageUrl = (url: string | null) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   const imageUrl = getFullImageUrl(otherUser.ProfileImageURL);
 

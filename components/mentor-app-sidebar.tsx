@@ -19,6 +19,7 @@ import {
   IconSettings,
   IconUsers,
   IconStar,
+  IconBell,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
@@ -34,13 +35,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/authStore";
+import { useGetProfile } from "@/features/profile/hooks/useGetProfile";
+import { useProfileStore } from "@/store/profileStore";
+import { getFullImageUrl } from "@/lib/utils";
 
 const data = {
-  mentor: {
-    name: "shadcn",
-    email: "mentor@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -62,12 +62,27 @@ const data = {
       url: "/mentor/reviews",
       icon: IconStar,
     },
+    {
+      title: "Notifications",
+      url: "/mentor/notifications",
+      icon: IconBell,
+    },
   ],
 };
 
 export function MentorAppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuthStore();
+  useGetProfile();
+  const { profile } = useProfileStore();
+
+  const userData = {
+    name: profile?.FullName || user?.name || "Mentor User",
+    email: profile?.Email || user?.email || "mentor@example.com",
+    avatar: getFullImageUrl(profile?.ProfileImageURL || user?.image),
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -77,7 +92,7 @@ export function MentorAppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/mentor/dashboard">
                 <IconInnerShadowTop className="!size-5" />
                 <span className="text-base font-semibold">
                   Mentor Dashboard
@@ -91,7 +106,7 @@ export function MentorAppSidebar({
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavMentor mentor={data.mentor} />
+        <NavMentor mentor={userData} />
       </SidebarFooter>
     </Sidebar>
   );

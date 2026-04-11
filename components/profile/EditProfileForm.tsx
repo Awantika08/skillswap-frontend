@@ -31,17 +31,12 @@ import {
   Mail,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface EditProfileFormProps {
   profile: Profile;
 }
 
-const getFullImageUrl = (url: string | null) => {
-  if (!url) return "";
-  if (url.startsWith("http") || url.startsWith("data:")) return url;
-  const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-  return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-};
 
 export const EditProfileForm = ({ profile }: EditProfileFormProps) => {
   const [previewImage, setPreviewImage] = useState<string | null>(

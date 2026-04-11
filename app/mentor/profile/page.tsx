@@ -10,13 +10,14 @@ import { MentorSkillTab } from "@/components/mentorSkill/MentorSkillTab";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, BookOpen, Clock, Star, Loader2 } from "lucide-react";
+import { User, BookOpen, Clock, Star, Loader2, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { MentorAvailabilityTab } from "@/components/mentorAvailability/MentorAvailabilityTab";
-import { useGetMyReviews } from "@/features/reviews/hooks/useReview";
+import { useGetMyReviews } from "@/features/reviews/hooks/useReviews";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
+import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 
 const MentorProfile = () => {
   const router = useRouter();
@@ -87,21 +88,15 @@ const MentorProfile = () => {
             <Star className="h-4 w-4" />
             Reviews
           </TabsTrigger>
+          <TabsTrigger value="security" className="gap-1.5">
+            <Lock className="h-4 w-4" />
+            Security
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-6 pt-4">
           {/* Editable Profile Form */}
           <EditProfileForm profile={profile} />
-
-          {/* Account Actions */}
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/mentor/profile/change-password")}
-            >
-              Change Password
-            </Button>
-          </div>
         </TabsContent>
 
         <TabsContent value="skills" className="pt-4">
@@ -130,6 +125,10 @@ const MentorProfile = () => {
               </div>
             </>
           ) : null}
+        </TabsContent>
+
+        <TabsContent value="security" className="pt-4 max-w-2xl">
+          <ChangePasswordForm />
         </TabsContent>
       </Tabs>
     </div>

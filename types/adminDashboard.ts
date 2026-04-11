@@ -46,10 +46,9 @@ export interface DashboardStats {
     dismissed: string;
     new_reports_week: string;
   };
-  engagement: {
-    total_messages: string;
+  notifications: {
+    total_notifications: string;
     unread_notifications: string;
-    unanswered_questions: string;
   };
 }
 

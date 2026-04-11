@@ -21,8 +21,17 @@ import {
   CheckCircle2,
   Clock3,
   XCircle,
-  Play
+  Play,
+  Share2,
+  Trash2
 } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
@@ -198,9 +207,32 @@ export default function MentorSessionsPage() {
                                 Rate Learner
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full border border-gray-100 dark:border-gray-800">
-                            <MoreVertical className="w-5 h-5 text-gray-400" />
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-12 w-12 rounded-full border border-gray-100 dark:border-gray-800">
+                                <MoreVertical className="w-5 h-5 text-gray-400" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56">
+                              {(session.Status === 'SCHEDULED' || session.Status === 'IN_PROGRESS' || session.Status === 'COMPLETED') && (
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/mentor/video-call/${session.SessionID}`} className="cursor-pointer">
+                                    <Video className="w-4 h-4 mr-2" />
+                                    {session.Status === 'COMPLETED' ? 'Join Session Again' : 'Enter Meeting Room'}
+                                  </Link>
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem onClick={() => handleChat(session.LearnerID)} className="cursor-pointer">
+                                <MessageSquare className="w-4 h-4 mr-2" />
+                                Send Message
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Cancel Session
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                     </Card>

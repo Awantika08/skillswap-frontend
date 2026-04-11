@@ -33,7 +33,7 @@ export default function Footer() {
                 </span>
               </div>
               <span className="font-bold text-lg text-foreground">
-                Skill-Swap
+                Skill Swap
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -66,7 +66,7 @@ export default function Footer() {
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
-              © {currentYear} Skill-Swap. All rights reserved.
+              © {currentYear} Skill Swap. All rights reserved.
             </p>
             <div className="flex gap-6">
               <a

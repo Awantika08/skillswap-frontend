@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DataTable } from "@/components/common/DataTable";
 import { User, PaginationInfo } from "@/types/user";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface UserTableProps {
   users: User[];
@@ -63,12 +64,6 @@ export function UserTable({
     }
   };
 
-  const getFullImageUrl = (url: string | null) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   const getInitials = (name: string) => {
     return name

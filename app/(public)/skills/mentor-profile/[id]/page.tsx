@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   MapPin,
 } from "lucide-react";
+import { getFullImageUrl } from "@/lib/utils";
 import { useMentorById } from "@/features/learner/hooks/useMentorById";
 import { useMentorAvailability } from "@/features/learner/hooks/useMentorAvailability";
 import {
@@ -31,7 +32,7 @@ import toast from "react-hot-toast";
 import { SessionRequestModal } from "@/features/videoSession/components/SessionRequestModal";
 import { ReviewList } from "@/features/reviews/components/ReviewList";
 import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
-import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReview";
+import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReviews";
 
 export default function MentorProfilePage() {
   const params = useParams();
@@ -136,13 +137,6 @@ export default function MentorProfilePage() {
   const colorIndex = mentor.UserID.charCodeAt(0) % colors.length;
   const mentorColor = colors[colorIndex];
 
-  const getFullImageUrl = (url: string | null) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/20 pb-24">

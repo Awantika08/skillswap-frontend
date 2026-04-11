@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Clock, Video, Loader2, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, getFullImageUrl } from "@/lib/utils";
 import { format } from "date-fns";
 
 export default function UpcomingSessions() {
@@ -62,7 +62,7 @@ export default function UpcomingSessions() {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 ring-2 ring-gray-50 dark:ring-gray-800">
-                  <AvatarImage src={session.LearnerImage} />
+                  <AvatarImage src={getFullImageUrl(session.LearnerImage)} />
                   <AvatarFallback>{session.LearnerName?.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>

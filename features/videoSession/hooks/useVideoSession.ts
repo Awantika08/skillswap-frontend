@@ -43,15 +43,36 @@ export function useVideoSession(sessionId: string) {
     },
   });
 
-  // Timer logic
+  // Timer logic - properly sync with server-side start time
   useEffect(() => {
+    // Only tick when in progress
     if (sessionInfo?.data?.Status === "IN_PROGRESS") {
+      // Calculate initial duration on join/load
+      // We check for any field that might indicate when the session actually started
+      const startTimeStr = (sessionInfo.data as any).ActualStartTime || 
+                          (sessionInfo.data as any).StartedAt || 
+                          sessionInfo.data.ScheduledStart;
+
+      if (startTimeStr) {
+        const calculateElapsed = () => {
+          const start = new Date(startTimeStr).getTime();
+          const now = Date.now();
+          return Math.floor((now - start) / 1000);
+        };
+        
+        // Set initial duration
+        setDuration(Math.max(0, calculateElapsed()));
+      }
+
       const interval = setInterval(() => {
         setDuration((prev) => prev + 1);
       }, 1000);
+      
       return () => clearInterval(interval);
+    } else {
+      setDuration(0);
     }
-  }, [sessionInfo?.data?.Status]);
+  }, [sessionInfo?.data?.Status, sessionInfo?.data]); // Re-sync if session data updates
 
   const formatDuration = useCallback((seconds: number) => {
     const hrs = Math.floor(seconds / 3600);

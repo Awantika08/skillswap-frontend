@@ -4,6 +4,7 @@ import { useConversations } from "../hooks";
 import { useChatSocket } from "../useChatSocket";
 import { formatDistanceToNow } from "date-fns";
 import { User, MessageSquare } from "lucide-react";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface ChatSidebarProps {
   selectedConversationId: string | null;
@@ -43,13 +44,6 @@ export function ChatSidebar({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [refetch]);
 
-  const getFullImageUrl = (url: string | null) => {
-    if (!url) return null;
-    if (url.startsWith("http")) return url;
-    const baseUrl =
-      process.env.NEXT_PUBLIC_IMAGE_URL || "http://localhost:5000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
-  };
 
   if (isLoading) {
     return (

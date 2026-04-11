@@ -34,7 +34,7 @@ export default function Home() {
       role: "Mentor",
       image: "SC",
       quote:
-        "Teaching on Skill-Swap has been incredibly rewarding. I love helping others grow.",
+        "Teaching on Skill Swap has been incredibly rewarding. I love helping others grow.",
       rating: 5,
     },
     {
@@ -117,10 +117,10 @@ export default function Home() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
-            <Link href="/signup">
+            <Link href="/register">
               <Button
                 variant="outline"
-                className="px-8 py-6 text-base font-semibold"
+                className="px-8 py-6 text-base font-semibold hover:bg-primary/90"
               >
                 Start as Mentor
               </Button>
@@ -179,7 +179,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-              How Skill-Swap Works
+              How Skill Swap Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Get started in three simple steps
@@ -250,7 +250,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-              Why Choose Skill-Swap
+              Why Choose Skill Swap
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Features designed to help you succeed
@@ -352,11 +352,6 @@ export default function Home() {
             growing together. It's free to get started.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup">
-              <Button className="bg-primary-foreground hover:bg-primary-foreground/90 text-primary px-8 py-6 text-base font-semibold">
-                Create Free Account
-              </Button>
-            </Link>
             <Link href="/skills">
               <Button className="bg-primary-foreground hover:bg-primary-foreground/90 text-primary px-8 py-6 text-base font-semibold">
                 Browse Skills
