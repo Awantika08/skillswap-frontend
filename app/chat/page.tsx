@@ -8,7 +8,9 @@ import { MessageSquare } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGlobalChatListener } from "@/features/chat/useGlobalChatListener";
 
-export default function ChatPage() {
+import { Suspense } from "react";
+
+function ChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const conversationIdParam = searchParams.get("conversationId");
@@ -80,5 +82,20 @@ export default function ChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-muted-foreground font-medium">Loading chat...</p>
+        </div>
+      </div>
+    }>
+      <ChatContent />
+    </Suspense>
   );
 }

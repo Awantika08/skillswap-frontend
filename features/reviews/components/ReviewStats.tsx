@@ -51,7 +51,7 @@ export function ReviewStatsOverview({ stats }: ReviewStatsProps) {
                 <div className="flex items-center gap-1 min-w-[40px] text-sm font-medium">
                   {star} <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
                 </div>
-                <Progress value={percentage} className="h-2.5 bg-gray-100 dark:bg-gray-800" indicatorcolor="bg-yellow-400" />
+                <Progress value={percentage} className="h-2.5 bg-gray-100 dark:bg-gray-800" indicatorClassName="bg-yellow-400" />
                 <div className="min-w-[30px] text-xs text-gray-500 text-right">
                   {count}
                 </div>

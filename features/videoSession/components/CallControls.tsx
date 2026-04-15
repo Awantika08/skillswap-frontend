@@ -289,7 +289,7 @@ export function CallControls({
               Chat with everyone
             </TooltipContent>
           </Tooltip>
-
+                
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" className={cn(controlButtonClass, secondaryControlClass)}>

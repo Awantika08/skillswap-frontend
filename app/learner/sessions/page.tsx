@@ -44,7 +44,9 @@ const statusConfig = {
   CANCELLED: { label: "Cancelled", color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400", icon: XCircle },
 };
 
-export default function LearnerSessionsPage() {
+import { Suspense } from "react";
+
+function LearnerSessionsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "SCHEDULED");
@@ -299,5 +301,17 @@ export default function LearnerSessionsPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function LearnerSessionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    }>
+      <LearnerSessionsContent />
+    </Suspense>
   );
 }

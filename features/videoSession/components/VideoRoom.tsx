@@ -423,7 +423,7 @@ export function VideoRoom({ sessionInfo, currentUser, duration, onEndSession, is
                 </div>
               )}
             </div>
-
+              
             {activeSidebar === "chat" && (
               <div className="p-6 border-t border-gray-100 mt-auto" style={{ padding: '24px', borderTop: '1px solid #f3f4f6' }}>
                 <form onSubmit={handleSendMessage} className="relative">

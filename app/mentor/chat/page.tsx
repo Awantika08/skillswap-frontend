@@ -8,7 +8,9 @@ import { MessageSquare } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useGlobalChatListener } from "@/features/chat/useGlobalChatListener";
 
-export default function MentorChatPage() {
+import { Suspense } from "react";
+
+function MentorChatContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const conversationIdParam = searchParams.get("conversationId");
@@ -55,9 +57,8 @@ export default function MentorChatPage() {
       />
 
       <div
-        className={`flex-1 flex flex-col h-full bg-muted/10 ${
-          selectedConversationId ? "flex" : "hidden sm:flex"
-        }`}
+        className={`flex-1 flex flex-col h-full bg-muted/10 ${selectedConversationId ? "flex" : "hidden sm:flex"
+          }`}
       >
         {selectedConversationId && selectedUser ? (
           <ChatWindow
@@ -80,5 +81,20 @@ export default function MentorChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MentorChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-muted-foreground font-medium">Loading mentor chat...</p>
+        </div>
+      </div>
+    }>
+      <MentorChatContent />
+    </Suspense>
   );
 }
