@@ -5,10 +5,23 @@ export const runtime = 'edge';
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetUserById } from "@/features/user/hooks/useGetUserById";
-import { UpdateUserForm } from "@/components/user/UpdateUserForm";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2, UserCog, ShieldAlert } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+
+const UpdateUserForm = dynamic(
+  () => import("@/components/user/UpdateUserForm").then((m) => m.UpdateUserForm),
+  { ssr: false, loading: () => (
+    <div className="space-y-6">
+      <div className="h-[200px] w-full rounded-2xl bg-muted animate-pulse" />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
+        <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
+      </div>
+      <div className="h-40 w-full rounded-2xl bg-muted animate-pulse" />
+    </div>
+  )}
+);
 
 export default function EditUserPage() {
   const { id } = useParams() as { id: string };
@@ -53,12 +66,12 @@ export default function EditUserPage() {
       <div className="relative">
         {isLoading ? (
           <div className="space-y-6">
-            <Skeleton className="h-[200px] w-full rounded-2xl" />
+            <div className="h-[200px] w-full rounded-2xl bg-muted animate-pulse" />
             <div className="grid grid-cols-2 gap-4">
-              <Skeleton className="h-12 w-full rounded-xl" />
-              <Skeleton className="h-12 w-full rounded-xl" />
+              <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
+              <div className="h-12 w-full rounded-xl bg-muted animate-pulse" />
             </div>
-            <Skeleton className="h-40 w-full rounded-2xl" />
+            <div className="h-40 w-full rounded-2xl bg-muted animate-pulse" />
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center p-12 bg-destructive/5 rounded-3xl border border-destructive/10 text-center gap-4">

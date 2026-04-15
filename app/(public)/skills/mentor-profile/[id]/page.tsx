@@ -31,10 +31,21 @@ import {
 import { chatApi } from "@/features/chat/api";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { SessionRequestModal } from "@/features/videoSession/components/SessionRequestModal";
-import { ReviewList } from "@/features/reviews/components/ReviewList";
-import { ReviewStatsOverview } from "@/features/reviews/components/ReviewStats";
+import dynamic from "next/dynamic";
 import { useGetUserReviewStats, useGetUserReviews } from "@/features/reviews/hooks/useReviews";
+
+const SessionRequestModal = dynamic(
+  () => import("@/features/videoSession/components/SessionRequestModal").then((m) => m.SessionRequestModal),
+  { ssr: false }
+);
+const ReviewList = dynamic(
+  () => import("@/features/reviews/components/ReviewList").then((m) => m.ReviewList),
+  { ssr: false, loading: () => <div className="h-32 w-full rounded-2xl bg-muted animate-pulse" /> }
+);
+const ReviewStatsOverview = dynamic(
+  () => import("@/features/reviews/components/ReviewStats").then((m) => m.ReviewStatsOverview),
+  { ssr: false }
+);
 
 export default function MentorProfilePage() {
   const params = useParams();

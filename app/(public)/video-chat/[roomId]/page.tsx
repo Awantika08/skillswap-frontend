@@ -5,9 +5,20 @@ export const runtime = 'edge';
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useAuthStore } from "@/store/authStore";
-import { VideoChatRoom } from "@/components/video-chat/VideoChatRoom";
-
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
+
+const VideoChatRoom = dynamic(
+  () => import("@/components/video-chat/VideoChatRoom").then((m) => m.VideoChatRoom),
+  { ssr: false, loading: () => (
+    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-12 w-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-400 font-medium">Joining video room...</p>
+      </div>
+    </div>
+  )}
+);
 
 function VideoChatRoomContent() {
   const params = useParams();

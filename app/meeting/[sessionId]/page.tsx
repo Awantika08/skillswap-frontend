@@ -5,11 +5,21 @@ export const runtime = 'edge';
 import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useVideoSession } from "@/features/videoSession/hooks/useVideoSession";
-import { VideoRoom } from "@/features/videoSession/components/VideoRoom";
+import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/authStore";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSessionSocket } from "@/features/videoSession/hooks/useSessionSocket";
+
+const VideoRoom = dynamic(
+  () => import("@/features/videoSession/components/VideoRoom").then((m) => m.VideoRoom),
+  { ssr: false, loading: () => (
+    <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-zinc-950 text-white gap-4">
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <p className="text-zinc-400 font-medium">Loading meeting room...</p>
+    </div>
+  )}
+);
 
 
 export default function MeetingPage() {
