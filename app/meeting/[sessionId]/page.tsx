@@ -1,4 +1,3 @@
-export const runtime = 'edge';
 "use client";
 
 import React, { useEffect } from "react";
@@ -6,10 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useVideoSession } from "@/features/videoSession/hooks/useVideoSession";
 import { VideoRoom } from "@/features/videoSession/components/VideoRoom";
 import { useAuthStore } from "@/store/authStore";
-import { Loader2, AlertCircle, Play } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import { useSessionSocket } from "@/features/videoSession/hooks/useSessionSocket";
+
 
 export default function MeetingPage() {
   const { sessionId } = useParams() as { sessionId: string };
