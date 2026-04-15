@@ -1,5 +1,7 @@
 "use client";
 
+export const runtime = 'edge';
+
 import { useParams, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useAuthStore } from "@/store/authStore";
