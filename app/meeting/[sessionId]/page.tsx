@@ -1,7 +1,5 @@
 "use client";
 
-export const runtime = 'edge';
-
 import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useVideoSession } from "@/features/videoSession/hooks/useVideoSession";
