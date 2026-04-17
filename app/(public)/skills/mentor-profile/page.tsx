@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -45,10 +46,10 @@ const ReviewStatsOverview = dynamic(
   { ssr: false }
 );
 
-export default function MentorProfilePage() {
-  const params = useParams();
+function MentorProfileContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = searchParams.get("id") || "";
 
   const { data: response, isLoading, error } = useMentorById(id);
   const { data: availabilityResponse } = useMentorAvailability(id);
@@ -430,5 +431,20 @@ export default function MentorProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MentorProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6" />
+        <h2 className="text-xl font-semibold text-foreground animate-pulse">
+          Loading Mentor Profile...
+        </h2>
+      </div>
+    }>
+      <MentorProfileContent />
+    </Suspense>
   );
 }

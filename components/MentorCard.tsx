@@ -136,7 +136,7 @@ export default function MentorCard({
               <span>Available</span>
             </div>
           </div>
-          <Link href={`/skills/mentor-profile/${id}`}>
+          <Link href={`/skills/mentor-profile?id=${id}`}>
             <Button size="sm" className="rounded-full px-6 cursor-pointer">
               View Profile
             </Button>

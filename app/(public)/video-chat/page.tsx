@@ -22,7 +22,7 @@ export default function VideoChatJoinPage() {
 
   const roomLink = useMemo(() => {
     if (!roomId) return "";
-    return `/video-chat/${roomId}`;
+    return `/video-chat/room?roomId=${roomId}`;
   }, [roomId]);
 
   return (
@@ -98,7 +98,7 @@ export default function VideoChatJoinPage() {
               const trimmedRoom = roomId.trim().toLowerCase();
               if (!trimmedRoom) return;
               const name = displayName.trim() || "Guest";
-              router.push(`/video-chat/${trimmedRoom}?name=${encodeURIComponent(name)}`);
+              router.push(`/video-chat/room?roomId=${trimmedRoom}&name=${encodeURIComponent(name)}`);
             }}
           >
             Join room

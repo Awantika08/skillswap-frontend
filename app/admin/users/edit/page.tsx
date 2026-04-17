@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { useGetUserById } from "@/features/user/hooks/useGetUserById";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,9 @@ const UpdateUserForm = dynamic(
   )}
 );
 
-export default function EditUserPage() {
-  const { id } = useParams() as { id: string };
+function EditUserContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id") || "";
   const router = useRouter();
   
   const { data, isLoading, error } = useGetUserById(id);
@@ -95,5 +97,17 @@ export default function EditUserPage() {
         ) : null}
       </div>
     </div>
+  );
+}
+
+export default function EditUserPage() {
+  return (
+    <Suspense fallback={
+      <div className="container ml-8 max-w-6xl py-10 space-y-8 animate-pulse text-center">
+        Loading User Data...
+      </div>
+    }>
+      <EditUserContent />
+    </Suspense>
   );
 }

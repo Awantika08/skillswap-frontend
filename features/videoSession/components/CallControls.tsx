@@ -34,7 +34,7 @@ import {
   TooltipTrigger
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 interface CallControlsProps {
   isMuted: boolean;
@@ -85,10 +85,11 @@ export function CallControls({
   onSwitchAudio,
   onSwitchVideo,
 }: CallControlsProps) {
-  const { sessionId } = useParams() as { sessionId: string };
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("sessionId") || "";
   const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }));
 
-  const roomCode = sessionId.substring(0, 11);
+  const roomCode = sessionId ? sessionId.substring(0, 11) : "Loading...";
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -291,7 +292,7 @@ export function CallControls({
               Chat with everyone
             </TooltipContent>
           </Tooltip>
-                
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" className={cn(controlButtonClass, secondaryControlClass)}>

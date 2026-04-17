@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useAuthStore } from "@/store/authStore";
 import dynamic from "next/dynamic";
@@ -21,15 +21,14 @@ const VideoChatRoom = dynamic(
 );
 
 function VideoChatRoomContent() {
-  const params = useParams();
   const searchParams = useSearchParams();
   const user = useAuthStore((s) => s.user);
 
   const roomId = useMemo(() => {
-    const raw = params.roomId;
-    if (typeof raw !== "string") return "";
+    const raw = searchParams.get("roomId");
+    if (!raw) return "";
     return decodeURIComponent(raw);
-  }, [params.roomId]);
+  }, [searchParams]);
 
   const displayName = useMemo(() => {
     const queryName = searchParams.get("name");

@@ -170,7 +170,7 @@ function MentorSessionsContent() {
                         <div className="flex items-center gap-3 w-full md:w-auto">
                           {session.Status === 'SCHEDULED' || session.Status === 'IN_PROGRESS' ? (
                             <Button size="lg" className="flex-1 md:flex-none" asChild>
-                              <Link href={`/mentor/video-call/${session.SessionID}`}>
+                              <Link href={`/mentor/video-call?sessionId=${session.SessionID}`}>
                                 <Video className="w-5 h-5 mr-2" />
                                 Join Call
                               </Link>
@@ -218,7 +218,7 @@ function MentorSessionsContent() {
                             <DropdownMenuContent align="end" className="w-56">
                               {(session.Status === 'SCHEDULED' || session.Status === 'IN_PROGRESS' || session.Status === 'COMPLETED') && (
                                 <DropdownMenuItem asChild>
-                                  <Link href={`/mentor/video-call/${session.SessionID}`} className="cursor-pointer">
+                                  <Link href={`/mentor/video-call?sessionId=${session.SessionID}`} className="cursor-pointer">
                                     <Video className="w-4 h-4 mr-2" />
                                     {session.Status === 'COMPLETED' ? 'Join Session Again' : 'Enter Meeting Room'}
                                   </Link>

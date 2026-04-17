@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { useVideoSession } from "@/features/videoSession/hooks/useVideoSession";
 import dynamic from "next/dynamic";
 import { useAuthStore } from "@/store/authStore";
@@ -20,8 +21,9 @@ const VideoRoom = dynamic(
 );
 
 
-export default function MeetingPage() {
-  const { sessionId } = useParams() as { sessionId: string };
+function MeetingContent() {
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("sessionId") || "";
   const { user } = useAuthStore();
   const router = useRouter();
 
@@ -91,5 +93,18 @@ export default function MeetingPage() {
       onStartSession={startSession}
       isStarting={isStarting}
     />
+  );
+}
+
+export default function MeetingPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-zinc-950 text-white gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="text-zinc-400 font-medium">Joining meeting...</p>
+      </div>
+    }>
+      <MeetingContent />
+    </Suspense>
   );
 }

@@ -203,7 +203,7 @@ function LearnerSessionsContent() {
                                         <p className="font-bold">{format(new Date(session.ScheduledStart), "p")}</p>
                                     </div>
                                     <Button className="ml-auto" asChild>
-                                        <Link href={`/learner/video-call/${session.SessionID}`}>
+                                        <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>
                                             <Video className="w-4 h-4 mr-2" />
                                             Join Meeting
                                         </Link>

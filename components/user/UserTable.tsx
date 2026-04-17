@@ -132,7 +132,7 @@ export function UserTable({
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/admin/users/${item.UserID}/edit`} className="flex items-center">
+              <Link href={`/admin/users/edit?id=${item.UserID}`} className="flex items-center">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit User
               </Link>

@@ -120,7 +120,7 @@ export function VideoRoom({ sessionInfo, currentUser, duration, onEndSession, is
   const hasPins = pinnedParticipants.length > 0;
 
   const handleCopyLink = () => {
-    const link = `${window.location.origin}/meeting/${sessionInfo.SessionID}`;
+    const link = `${window.location.origin}/meeting?sessionId=${sessionInfo.SessionID}`;
     navigator.clipboard.writeText(link);
     setIsCopied(true);
     toast.success("Invitation link copied to clipboard");
@@ -411,7 +411,7 @@ export function VideoRoom({ sessionInfo, currentUser, duration, onEndSession, is
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-2">Joining info</h3>
                     <p className="text-xs text-gray-500 mb-4 break-all">
-                      {window.location.origin}/meeting/{sessionInfo.SessionID}
+                      {window.location.origin}/meeting?sessionId={sessionInfo.SessionID}
                     </p>
                     <Button
                       variant="outline"

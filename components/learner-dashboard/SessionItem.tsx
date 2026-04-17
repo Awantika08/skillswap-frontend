@@ -76,7 +76,7 @@ export const SessionItem = ({
         <div>
           {isJoinable ? (
             <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-5 h-8 text-[11px] font-bold shadow-lg shadow-rose-500/20" asChild>
-                <Link href={`/learner/video-call/${session.SessionID}`}>Join</Link>
+                <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>Join</Link>
             </Button>
           ) : session.Status === 'PENDING_MATCH' ? (
                 <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 text-[10px] font-bold">

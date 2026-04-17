@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const ResetPasswordForm = dynamic(() => import("./ResetPasswordForm"), {
   ssr: false,
@@ -29,9 +30,21 @@ const ResetPasswordForm = dynamic(() => import("./ResetPasswordForm"), {
   ),
 });
 
-export default function ResetPasswordPage() {
-  const params = useParams();
-  const token = params.token as string;
+function ResetPasswordContent() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
 
   return <ResetPasswordForm token={token} />;
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-6 animate-pulse mt-10 text-center">
+        Loading...
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
+  );
 }

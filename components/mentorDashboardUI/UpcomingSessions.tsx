@@ -92,7 +92,7 @@ export default function UpcomingSessions() {
             </div>
 
             <Button className="w-full shadow-sm" asChild>
-              <Link href={`/mentor/video-call/${session.SessionID}`}>
+              <Link href={`/mentor/video-call?sessionId=${session.SessionID}`}>
                 <Video className="w-4 h-4 mr-2" />
                 Join Session
               </Link>

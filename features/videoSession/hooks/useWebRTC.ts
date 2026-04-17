@@ -51,14 +51,15 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const [selectedAudioId, setSelectedAudioId] = useState<string>("");
   const [selectedVideoId, setSelectedVideoId] = useState<string>("");
 
-  // Helper: replace the video track in all peer connections
   const replaceVideoTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
     peerConnections.current.forEach((pc) => {
       const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
-      if (videoSender && newTrack) {
-        videoSender.replaceTrack(newTrack).catch((err) =>
-          console.error("[WebRTC] replaceVideoTrack error:", err)
-        );
+      if (videoSender) {
+        pc.removeTrack(videoSender);
+      }
+      if (newTrack) {
+        const stream = localStreamRef.current;
+        if (stream) pc.addTrack(newTrack, stream);
       }
     });
   }, []);
@@ -66,10 +67,12 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const replaceAudioTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
     peerConnections.current.forEach((pc) => {
       const audioSender = pc.getSenders().find((s) => s.track?.kind === "audio");
-      if (audioSender && newTrack) {
-        audioSender.replaceTrack(newTrack).catch((err) =>
-          console.error("[WebRTC] replaceAudioTrack error:", err)
-        );
+      if (audioSender) {
+        pc.removeTrack(audioSender);
+      }
+      if (newTrack) {
+        const stream = localStreamRef.current;
+        if (stream) pc.addTrack(newTrack, stream);
       }
     });
   }, []);
@@ -101,8 +104,8 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const initLocalMedia = useCallback(async (audioId?: string, videoId?: string) => {
     try {
       const constraints = {
-        video: { 
-          width: { ideal: 1280 }, 
+        video: {
+          width: { ideal: 1280 },
           height: { ideal: 720 },
           deviceId: videoId ? { exact: videoId } : undefined
         },
@@ -151,6 +154,17 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
         }
       };
 
+      pc.onnegotiationneeded = async () => {
+        try {
+          if (pc.signalingState !== "stable") return;
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          socket?.emit("webrtc:offer", { to: socketId, offer });
+        } catch (err) {
+          console.error("[WebRTC] Error during negotiation:", err);
+        }
+      };
+
       // When remote tracks arrive, store the stream in participants state
       pc.ontrack = (event) => {
         console.log(`[WebRTC] ontrack from ${remoteUserName}`, event.streams);
@@ -165,7 +179,7 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
             userName: remoteUserName,
           };
           // Create a new MediaStream reference so React detects the change
-          existing.stream = remoteStream;
+          existing.stream = new MediaStream(remoteStream.getTracks());
           next.set(socketId, { ...existing });
           return next;
         });
@@ -549,18 +563,18 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
       if (currentStream) {
         // Stop old audio tracks
         currentStream.getAudioTracks().forEach(t => t.stop());
-        
+
         // Build new stream: new audio track + existing video tracks
         const videoTracks = currentStream.getVideoTracks();
         const freshStream = new MediaStream([newTrack, ...videoTracks]);
-        
+
         localStreamRef.current = freshStream;
         setLocalStream(freshStream);
-        
+
         // Replace in peers
         replaceAudioTrackInPeers(newTrack);
         setSelectedAudioId(deviceId);
-        
+
         // If it was muted, we might need to keep it muted or enable it
         newTrack.enabled = !isMuted;
       }
