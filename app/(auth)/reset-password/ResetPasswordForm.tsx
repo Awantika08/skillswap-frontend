@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resetPasswordSchema, ResetPasswordFormValues } from "@/zod/auth";
-import { useResetPassword } from "@/hooks/useResetPassword";
+import { useResetPassword, useValidateResetToken } from "@/hooks/useResetPassword";
 
 interface ResetPasswordFormProps {
   token: string;
@@ -19,6 +19,7 @@ interface ResetPasswordFormProps {
 export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
   const resetPasswordMutation = useResetPassword();
+  const { isLoading: isValidating, error: validationError } = useValidateResetToken(token);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -38,9 +39,9 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
 
   const onSubmit = (data: ResetPasswordFormValues) => {
     resetPasswordMutation.mutate(
-      { 
-        token, 
-        data: { newPassword: data.newPassword } 
+      {
+        token,
+        data: { newPassword: data.newPassword }
       },
       {
         onSuccess: () => {
@@ -57,6 +58,41 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       }
     );
   };
+
+  if (!token || validationError) {
+    return (
+      <div className="space-y-6 text-center py-6">
+        <div className="flex justify-center mb-4">
+          <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+            <Lock className="h-6 w-6 text-red-500" />
+          </div>
+        </div>
+        <h2 className="text-2xl font-semibold text-foreground">Invalid Link</h2>
+        <p className="text-muted-foreground mt-2">
+          {validationError?.message || "The password reset link is invalid or has expired."}
+        </p>
+        <Button
+          type="button"
+          onClick={() => router.push("/forgot-password")}
+          className="w-full mt-6 h-12 bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          Request New Link
+        </Button>
+      </div>
+    );
+  }
+
+  if (isValidating) {
+    return (
+      <div className="space-y-6 animate-pulse py-6 text-center">
+        <div className="flex justify-center mb-4">
+          <div className="h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center"></div>
+        </div>
+        <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto"></div>
+        <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mt-4"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
