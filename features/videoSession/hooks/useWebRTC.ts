@@ -54,10 +54,9 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const replaceVideoTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
     peerConnections.current.forEach((pc) => {
       const videoSender = pc.getSenders().find((s) => s.track?.kind === "video");
-      if (videoSender) {
-        pc.removeTrack(videoSender);
-      }
-      if (newTrack) {
+      if (videoSender && newTrack) {
+        videoSender.replaceTrack(newTrack).catch(err => console.error("Error replacing video track:", err));
+      } else if (newTrack) {
         const stream = localStreamRef.current;
         if (stream) pc.addTrack(newTrack, stream);
       }
@@ -67,10 +66,9 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
   const replaceAudioTrackInPeers = useCallback((newTrack: MediaStreamTrack | null) => {
     peerConnections.current.forEach((pc) => {
       const audioSender = pc.getSenders().find((s) => s.track?.kind === "audio");
-      if (audioSender) {
-        pc.removeTrack(audioSender);
-      }
-      if (newTrack) {
+      if (audioSender && newTrack) {
+        audioSender.replaceTrack(newTrack).catch(err => console.error("Error replacing audio track:", err));
+      } else if (newTrack) {
         const stream = localStreamRef.current;
         if (stream) pc.addTrack(newTrack, stream);
       }
@@ -167,10 +165,7 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
 
       // When remote tracks arrive, store the stream in participants state
       pc.ontrack = (event) => {
-        console.log(`[WebRTC] ontrack from ${remoteUserName}`, event.streams);
-        const remoteStream = event.streams[0];
-        if (!remoteStream) return;
-
+        console.log(`[WebRTC] ontrack from ${remoteUserName} for track kind: ${event.track.kind}`);
         setParticipants((prev) => {
           const next = new Map(prev);
           const existing = next.get(socketId) || {
@@ -178,8 +173,15 @@ export function useWebRTC({ roomId, userId, userName }: UseWebRTCProps) {
             userId: remoteUserId,
             userName: remoteUserName,
           };
-          // Create a new MediaStream reference so React detects the change
-          existing.stream = new MediaStream(remoteStream.getTracks());
+          
+          if (!existing.stream) {
+            existing.stream = new MediaStream([event.track]);
+          } else {
+            const tracks = existing.stream.getTracks();
+            if (!tracks.find(t => t.id === event.track.id)) {
+              existing.stream = new MediaStream([...tracks, event.track]);
+            }
+          }
           next.set(socketId, { ...existing });
           return next;
         });

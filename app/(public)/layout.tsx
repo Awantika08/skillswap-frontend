@@ -1,18 +1,9 @@
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AppShell } from "@/components/layouts/AppShell";
 
 export default function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="font-sans antialiased">
-        <Navigation />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
+  return <AppShell>{children}</AppShell>;
 }

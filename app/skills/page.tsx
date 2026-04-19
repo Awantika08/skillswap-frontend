@@ -22,8 +22,10 @@ import { useAvailableMentors } from "@/features/learner/hooks/useAvailableMentor
 import { useGetAllSkillCategories } from "@/features/skillCategory/hooks/useGetAllSkillCategory";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
 
 export default function SkillsPage() {
+  const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -96,27 +98,34 @@ export default function SkillsPage() {
   }, [selectedCategoryId, categories]);
 
   return (
-    <div className="min-h-screen bg-background selection:bg-primary/20">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-border/40 bg-muted/30 pt-16 pb-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary-color),transparent_25%)] opacity-[0.03]" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6 animate-in fade-in slide-in-from-bottom-3 duration-700">
-            <Sparkles className="w-3 h-3" />
-            Discover Expert Mentorship
-          </div>
+    <div className={cn("bg-background selection:bg-primary/20 transition-all duration-300", !user && "min-h-screen")}>
+      {!user && (
+        <div className="relative overflow-hidden border-b border-border/40 bg-muted/30 pt-16 pb-20">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary-color),transparent_25%)] opacity-[0.03]" />
           
-          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            Find Your Next <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">Skill Mentor</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            Connect with verified industry professionals for 1-on-1 mentorship and career growth.
-          </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6 animate-in fade-in slide-in-from-bottom-3 duration-700">
+              <Sparkles className="w-3 h-3" />
+              Discover Expert Mentorship
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              Find Your Next <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">Skill Mentor</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-1000">
+              Connect with verified industry professionals for 1-on-1 mentorship and career growth.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 py-12 relative z-50">
+      <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-50", !user && "-mt-10")}>
+        {user && (
+          <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Find Mentors</h1>
+            <p className="text-muted-foreground mt-2 text-lg">Browse and connect with expert mentors to grow your skills.</p>
+          </div>
+        )}
         {/* Unified Search and Filter Row */}
         <div 
           className={cn(
@@ -338,24 +347,25 @@ export default function SkillsPage() {
           )}
         </div>
 
-        {/* Footer Info Card */}
-        <div className="bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-[3.5rem] p-10 md:p-16 border border-primary/20 flex flex-col lg:flex-row items-center justify-between gap-12 translate-z-0 overflow-hidden relative shadow-2xl shadow-primary/10 group">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/25 rounded-full blur-[140px] -mr-40 -mt-40 transition-all duration-700 group-hover:bg-primary/30" />
-          <div className="relative z-10 text-center lg:text-left">
-            <Badge className="mb-6 bg-primary/10 text-primary border-none hover:bg-primary/20 px-4 py-1.5 transition-colors">Coming Soon</Badge>
-            <h3 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight">Can't Find a Specific Skill?</h3>
-            <p className="text-muted-foreground text-lg md:text-xl max-w-xl font-bold opacity-80 leading-relaxed">
-              Our community is growing fast. Tell us what you want to learn, and we'll prioritize finding an expert mentor for you.
-            </p>
+        {!user && (
+          <div className="bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-[3.5rem] p-10 md:p-16 border border-primary/20 flex flex-col lg:flex-row items-center justify-between gap-12 translate-z-0 overflow-hidden relative shadow-2xl shadow-primary/10 group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-primary/25 rounded-full blur-[140px] -mr-40 -mt-40 transition-all duration-700 group-hover:bg-primary/30" />
+            <div className="relative z-10 text-center lg:text-left">
+              <Badge className="mb-6 bg-primary/10 text-primary border-none hover:bg-primary/20 px-4 py-1.5 transition-colors">Coming Soon</Badge>
+              <h3 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter leading-tight">Can't Find a Specific Skill?</h3>
+              <p className="text-muted-foreground text-lg md:text-xl max-w-xl font-bold opacity-80 leading-relaxed">
+                Our community is growing fast. Tell us what you want to learn, and we'll prioritize finding an expert mentor for you.
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-4 relative z-10">
+              <Button size="lg" className="rounded-2xl px-14 h-20 text-xl font-black shadow-2xl shadow-primary/40 transition-all hover:scale-105 active:scale-95 group">
+                Request Mentorship
+                <span className="ml-3 px-2 py-0.5 rounded text-[10px] bg-white/20">New</span>
+              </Button>
+              <p className="text-xs font-bold text-muted-foreground/60">Average response time: 24h</p>
+            </div>
           </div>
-          <div className="flex flex-col items-center gap-4 relative z-10">
-            <Button size="lg" className="rounded-2xl px-14 h-20 text-xl font-black shadow-2xl shadow-primary/40 transition-all hover:scale-105 active:scale-95 group">
-              Request Mentorship
-              <span className="ml-3 px-2 py-0.5 rounded text-[10px] bg-white/20">New</span>
-            </Button>
-            <p className="text-xs font-bold text-muted-foreground/60">Average response time: 24h</p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

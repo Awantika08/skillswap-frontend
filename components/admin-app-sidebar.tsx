@@ -79,27 +79,41 @@ export function AdminAppSidebar({
     avatar: getFullImageUrl(profile?.ProfileImageURL || user?.image),
   };
 
+  const mainNav = data.navMain.slice(0, 3);
+  const socialNav = data.navMain.slice(3);
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="h-20 flex items-center justify-center border-b border-border/40 px-6">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              size="lg"
+              className="data-[slot=sidebar-menu-button]:!p-0 hover:bg-transparent"
             >
-              <a href="/admin/dashboard">
-                <IconInnerShadowTop className="size-5!" />
-                <span className="text-base font-semibold">Admin Dashboard</span>
+              <a href="/admin/dashboard" className="flex items-center gap-3">
+                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                  <IconInnerShadowTop className="size-6" />
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="text-lg font-black tracking-tighter">SKILLSWAP</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">
+                    Admin
+                  </span>
+                </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
+      <SidebarContent className="py-6">
+        <NavMain items={mainNav} label="Administration" />
+        <div className="mt-4">
+          <NavMain items={socialNav} label="System" />
+        </div>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="p-4 border-t border-border/40">
         <NavAdmin admin={userData} />
       </SidebarFooter>
     </Sidebar>

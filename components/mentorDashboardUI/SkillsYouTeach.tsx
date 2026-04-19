@@ -67,17 +67,6 @@ export default function SkillsYouTeach({ skills }: SkillsYouTeachProps) {
             </div>
           </Card>
         ))}
-
-        <Button
-          variant="outline"
-          asChild
-          className="w-full border-dashed border-2 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 py-6"
-        >
-          <Link href="/mentor/profile">
-            <Plus className="h-4 w-4 mr-2" />
-            Manage My Skills
-          </Link>
-        </Button>
       </div>
     </div>
   );

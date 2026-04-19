@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/layouts/AppShell";
 
-export default function LearnerLayout({
+export default function SkillsLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -1,6 +1,5 @@
 import React from "react";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import { AppShell } from "@/components/layouts/AppShell";
 
 export default function ChatLayout({
   children,
@@ -8,12 +7,10 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navigation />
-      <main className="flex-1 flex overflow-hidden relative">
+    <AppShell>
+      <div className="flex-1 flex overflow-hidden relative min-h-[calc(100vh-var(--header-height)-4rem)]">
         {children}
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </AppShell>
   );
 }
