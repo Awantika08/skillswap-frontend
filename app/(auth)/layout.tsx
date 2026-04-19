@@ -32,11 +32,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </Link>
 
           <div className="flex-1 flex flex-col justify-center gap-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-medium w-fit">
-              <Sparkles className="w-3 h-3 text-primary" />
-              Empowering 100k+ Learners
-            </div>
-
             <div className="space-y-6">
               <h2 className="text-5xl xl:text-6xl text-white leading-[1.1] font-black tracking-tighter max-w-lg">
                 Master Any Skill, <br />
@@ -47,18 +42,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               <p className="text-white/60 text-xl leading-relaxed max-w-md font-medium">
                 The most immersive peer-to-peer learning community. Share what you know, learn what you love.
               </p>
-            </div>
-
-            {/* Premium Detail Card */}
-            <div className="mt-4 p-8 rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-md max-w-sm">
-              <div className="flex -space-x-3 mb-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-slate-900 bg-slate-800" />
-                ))}
-                <div className="w-10 h-10 rounded-full border-2 border-slate-900 bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">+1k</div>
-              </div>
-              <p className="text-sm text-white/80 font-semibold italic">"The best decision for my career growth this year."</p>
-            </div>
+            </div>SkillSwap
           </div>
 
           <div className="flex justify-between items-center text-white/30 text-xs font-medium tracking-widest uppercase">

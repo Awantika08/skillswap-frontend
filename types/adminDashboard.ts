@@ -97,3 +97,79 @@ export interface AdminAlertsResponse {
   success: boolean;
   data: AdminAlerts;
 }
+
+// Session List Types
+export interface AdminSession {
+  SessionID: string;
+  Title: string;
+  Description: string;
+  Status: string;
+  ScheduledStart: string;
+  mentorName: string;
+  mentorEmail: string;
+  learnerName: string;
+  learnerEmail: string;
+  review_count: string;
+  report_count: string;
+  CreatedAt: string;
+}
+
+export interface AdminSessionsResponse {
+  success: boolean;
+  data: {
+    sessions: AdminSession[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+// Activity Log Types
+export interface ActivityLog {
+  type: 'session' | 'user_registration' | 'report';
+  id: string;
+  title?: string;
+  status?: string;
+  created_at: string;
+  mentor_name?: string;
+  learner_name?: string;
+  name?: string;
+  role?: string;
+}
+
+export interface ActivityLogsResponse {
+  success: boolean;
+  data: {
+    logs: ActivityLog[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}
+
+// Mentor/Skill Metrics
+export interface TopMentor {
+  UserID: string;
+  FullName: string;
+  Email: string;
+  ProfileImageURL: string;
+  total_sessions: string;
+  completed_sessions: string;
+  avg_rating: string;
+  total_reviews: string;
+}
+
+export interface PopularSkill {
+  SkillID: string;
+  Name: string;
+  CategoryName: string;
+  mentor_count: string;
+  session_count: string;
+  completed_sessions: string;
+}

@@ -43,18 +43,23 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/admin/dashboard", // Updated URL
+      url: "/admin/dashboard",
       icon: IconDashboard,
     },
     {
+      title: "Users",
+      url: "/admin/users",
+      icon: IconUsers,
+    },
+    {
       title: "Skill Category",
-      url: "/admin/skill-category", // This one is already correct
+      url: "/admin/skill-category",
       icon: IconListDetails,
     },
     {
-      title: "Users",
-      url: "/admin/users", // Updated URL
-      icon: IconChartBar,
+      title: "Activity Logs",
+      url: "/admin/activity-logs",
+      icon: IconDatabase,
     },
     {
       title: "Notifications",

@@ -4,6 +4,10 @@ import {
   AdminAlertsResponse,
   UserGrowthResponse,
   SessionTrendResponse,
+  TopMentor,
+  PopularSkill,
+  AdminSessionsResponse,
+  ActivityLogsResponse
 } from "@/types/adminDashboard";
 
 // Main Dashboard
@@ -41,5 +45,42 @@ export const getSessionTrendsData = async (): Promise<SessionTrendResponse> => {
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch session trends data");
+  }
+};
+
+// Lists and Data Tables
+export const getTopMentors = async (): Promise<{ success: boolean; data: TopMentor[] }> => {
+  try {
+    const response = await api.get("/admin/top-mentors");
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Failed to fetch top mentors");
+  }
+};
+
+export const getPopularSkills = async (): Promise<{ success: boolean; data: PopularSkill[] }> => {
+  try {
+    const response = await api.get("/admin/popular-skills");
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Failed to fetch popular skills");
+  }
+};
+
+export const getAllSessionsAdmin = async (params: { page?: number; limit?: number; status?: string }): Promise<AdminSessionsResponse> => {
+  try {
+    const response = await api.get<AdminSessionsResponse>("/admin/sessions", { params });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Failed to fetch sessions");
+  }
+};
+
+export const getActivityLogs = async (params: { page?: number; limit?: number }): Promise<ActivityLogsResponse> => {
+  try {
+    const response = await api.get<ActivityLogsResponse>("/admin/activity-logs", { params });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Failed to fetch activity logs");
   }
 };

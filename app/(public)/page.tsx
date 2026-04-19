@@ -54,7 +54,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              v2.0 Immersive Dashboard is Live
+              SkillSwap
             </div>
 
             <h1 className="text-6xl sm:text-7xl lg:text-[7.5rem] font-black tracking-tighter leading-[0.85] text-foreground animate-in fade-in slide-in-from-bottom-3 duration-1000">
@@ -92,26 +92,26 @@ export default function Home() {
           <div className="lg:col-span-5 relative lg:h-[700px] flex items-center justify-center animate-in fade-in zoom-in-95 duration-1000">
             {/* The Floating UI Stack */}
             <div className="relative w-full h-full perspective-[2000px] flex items-center justify-center">
-              
+
               {/* Card 1: Mentor Profile (Sarah) */}
               <div className="absolute top-[5%] right-[5%] w-[85%] p-6 rounded-[2.5rem] bg-background border border-border/40 shadow-2xl rotate-y-[-20deg] rotate-x-[10deg] -rotate-12 hover:rotate-0 transition-all duration-700 cursor-default group">
-                 <div className="flex items-center gap-5 mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-400 group-hover:scale-110 transition-transform" />
-                    <div className="text-left">
-                      <p className="text-xl font-black">Sarah Chen</p>
-                      <p className="text-sm font-bold text-primary italic">Verified Senior Designer</p>
-                    </div>
-                 </div>
-                 <div className="space-y-3">
-                   <div className="h-2 w-full bg-muted/40 rounded-full overflow-hidden">
-                     <div className="h-full w-full bg-primary/20 scale-x-75 origin-left" />
-                   </div>
-                   <div className="h-2 w-[80%] bg-muted/40 rounded-full" />
-                 </div>
-                 <div className="mt-8 flex justify-between items-center text-xs font-bold uppercase opacity-40">
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Trusted</div>
-                    <div className="flex items-center gap-1"><Star className="w-3 h-3 fill-current" /> 5.0</div>
-                 </div>
+                <div className="flex items-center gap-5 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-400 group-hover:scale-110 transition-transform" />
+                  <div className="text-left">
+                    <p className="text-xl font-black">Sarah Chen</p>
+                    <p className="text-sm font-bold text-primary italic">Verified Senior Designer</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-2 w-full bg-muted/40 rounded-full overflow-hidden">
+                    <div className="h-full w-full bg-primary/20 scale-x-75 origin-left" />
+                  </div>
+                  <div className="h-2 w-[80%] bg-muted/40 rounded-full" />
+                </div>
+                <div className="mt-8 flex justify-between items-center text-xs font-bold uppercase opacity-40">
+                  <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4" /> Trusted</div>
+                  <div className="flex items-center gap-1"><Star className="w-3 h-3 fill-current" /> 5.0</div>
+                </div>
               </div>
 
               {/* Card 2: Glass Notification (Session Started) */}
@@ -137,11 +137,11 @@ export default function Home() {
       {/* Trusted By / Logo Cloud */}
       <section className="py-12 border-y border-border/40 bg-muted/10">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center items-center gap-12 md:gap-24 grayscale opacity-40">
-           <div className="text-xl font-black italic tracking-tighter">MENTOR.LY</div>
-           <div className="text-xl font-black italic tracking-tighter">SKILLSET</div>
-           <div className="text-xl font-black italic tracking-tighter">LEARNLAB</div>
-           <div className="text-xl font-black italic tracking-tighter">DEVFLUX</div>
-           <div className="text-xl font-black italic tracking-tighter">CREATIVE.CO</div>
+          <div className="text-xl font-black italic tracking-tighter">MENTOR.LY</div>
+          <div className="text-xl font-black italic tracking-tighter">SKILLSET</div>
+          <div className="text-xl font-black italic tracking-tighter">LEARNLAB</div>
+          <div className="text-xl font-black italic tracking-tighter">DEVFLUX</div>
+          <div className="text-xl font-black italic tracking-tighter">CREATIVE.CO</div>
         </div>
       </section>
 
@@ -184,15 +184,15 @@ export default function Home() {
           </div>
 
           <div className="md:col-span-2 md:row-span-1 rounded-[2.5rem] bg-muted/40 border border-border/40 p-8 flex flex-col justify-center">
-             <div className="flex items-center gap-4 mb-4">
-               <div className="flex -space-x-3">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-muted border-2 border-background" />
-                  ))}
-               </div>
-               <p className="text-sm font-bold opacity-60">+10k Active</p>
-             </div>
-             <h3 className="text-xl font-black">Thriving Community</h3>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex -space-x-3">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full bg-muted border-2 border-background" />
+                ))}
+              </div>
+              <p className="text-sm font-bold opacity-60">+10k Active</p>
+            </div>
+            <h3 className="text-xl font-black">Thriving Community</h3>
           </div>
         </div>
       </section>
@@ -222,13 +222,13 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((cat, idx) => (
               <Link href="/skills" key={idx} className="group overflow-hidden rounded-[2rem] border border-border/40 bg-background p-8 hover:border-primary/50 transition-all hover:shadow-2xl hover:shadow-primary/5">
-                 <div className="flex items-center gap-6">
-                    <div className="text-5xl transition-transform group-hover:scale-110 duration-500">{cat.icon}</div>
-                    <div>
-                      <h3 className="text-xl font-black mb-1">{cat.name}</h3>
-                      <p className="text-sm font-bold text-primary">{cat.count}</p>
-                    </div>
-                 </div>
+                <div className="flex items-center gap-6">
+                  <div className="text-5xl transition-transform group-hover:scale-110 duration-500">{cat.icon}</div>
+                  <div>
+                    <h3 className="text-xl font-black mb-1">{cat.name}</h3>
+                    <p className="text-sm font-bold text-primary">{cat.count}</p>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -243,28 +243,28 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <div className="p-10 rounded-[2.5rem] bg-muted/50 border border-border/60 relative overflow-hidden">
-                <Star className="w-12 h-12 text-primary opacity-10 absolute -top-2 -left-2" />
-                <p className="text-xl font-medium leading-relaxed mb-8 italic">"Skill Swap changed how I think about professional growth. I found an amazing mentor in days."</p>
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-2xl bg-primary/20" />
-                   <div>
-                     <p className="font-black">Alex Rivera</p>
-                     <p className="text-sm text-muted-foreground">Product Designer</p>
-                   </div>
+            <div className="p-10 rounded-[2.5rem] bg-muted/50 border border-border/60 relative overflow-hidden">
+              <Star className="w-12 h-12 text-primary opacity-10 absolute -top-2 -left-2" />
+              <p className="text-xl font-medium leading-relaxed mb-8 italic">"Skill Swap changed how I think about professional growth. I found an amazing mentor in days."</p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-primary/20" />
+                <div>
+                  <p className="font-black">Alex Rivera</p>
+                  <p className="text-sm text-muted-foreground">Product Designer</p>
                 </div>
-             </div>
-             <div className="p-10 rounded-[2.5rem] bg-muted/50 border border-border/60 relative overflow-hidden">
-                <Star className="w-12 h-12 text-accent opacity-10 absolute -top-2 -left-2" />
-                <p className="text-xl font-medium leading-relaxed mb-8 italic">"Transitioning to tech was hard until I met my mentor through this platform. Best community ever."</p>
-                <div className="flex items-center gap-4">
-                   <div className="w-12 h-12 rounded-2xl bg-accent/20" />
-                   <div>
-                     <p className="font-black">Sarah Chen</p>
-                     <p className="text-sm text-muted-foreground">Software Engineer</p>
-                   </div>
+              </div>
+            </div>
+            <div className="p-10 rounded-[2.5rem] bg-muted/50 border border-border/60 relative overflow-hidden">
+              <Star className="w-12 h-12 text-accent opacity-10 absolute -top-2 -left-2" />
+              <p className="text-xl font-medium leading-relaxed mb-8 italic">"Transitioning to tech was hard until I met my mentor through this platform. Best community ever."</p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-accent/20" />
+                <div>
+                  <p className="font-black">Sarah Chen</p>
+                  <p className="text-sm text-muted-foreground">Software Engineer</p>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
