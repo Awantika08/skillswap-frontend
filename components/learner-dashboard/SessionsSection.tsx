@@ -30,11 +30,11 @@ export const SessionsSection = () => {
   const sessions = response || [];
 
   const { data: timeSlotsData } = useQuery({
-    queryKey: ["learner", "dashboard-slots", sessions.filter(s => s.Status === 'PENDING_MATCH').map(s => s.SessionID)],
+    queryKey: ["learner", "dashboard-slots", sessions.filter(s => ['PENDING_MATCH', 'SCHEDULED'].includes(s.Status)).map(s => s.SessionID)],
     queryFn: async () => {
         const results: Record<string, any[]> = {};
         for (const session of sessions) {
-            if (session.Status === 'PENDING_MATCH') {
+            if (['PENDING_MATCH', 'SCHEDULED'].includes(session.Status)) {
                 const tsRes = await api.get(`/sessions/${session.SessionID}/time-slots`);
                 results[session.SessionID] = tsRes.data?.data || [];
             }

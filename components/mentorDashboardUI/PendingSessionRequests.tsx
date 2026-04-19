@@ -10,9 +10,11 @@ import api from "@/lib/api";
 import { format } from "date-fns";
 import { ProposeSlotsModal } from "@/features/videoSession/components/ProposeSlotsModal";
 import { getFullImageUrl } from "@/lib/utils";
+import { toast } from "react-hot-toast";
 
 export default function PendingSessionRequests() {
   const [selectedSession, setSelectedSession] = useState<{ id: string, learnerName: string } | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const { data: response, isLoading, refetch } = useQuery({
     queryKey: ["mentor", "sessions", "pending"],
@@ -21,6 +23,24 @@ export default function PendingSessionRequests() {
       return res.data;
     },
   });
+
+  const handleReject = async (sessionId: string) => {
+    if (!window.confirm("Are you sure you want to decline this session request?")) return;
+
+    try {
+      setRejectingId(sessionId);
+      const res = await api.put(`/mentor/sessions/${sessionId}/status`, { status: "CANCELLED" });
+      if (res.data.success) {
+        toast.success("Request declined successfully");
+        refetch();
+      }
+    } catch (error: any) {
+      console.error("Reject session error", error);
+      toast.error(error.response?.data?.errors?.[0]?.message || "Failed to decline request");
+    } finally {
+      setRejectingId(null);
+    }
+  };
 
   const sessions = response?.data?.sessions || [];
 
@@ -87,13 +107,24 @@ export default function PendingSessionRequests() {
             <div className="flex gap-3">
               <Button 
                 onClick={() => setSelectedSession({ id: session.SessionID, learnerName: session.LearnerName })}
+                disabled={rejectingId === session.SessionID}
                 className="flex-1 bg-primary hover:bg-primary/90 text-white border-0"
               >
                 <Check className="h-4 w-4 mr-2" />
                 Review & Propose Slots
               </Button>
-               <Button variant="outline" className="px-3" title="Decline">
-                <X className="h-4 w-4 text-destructive" />
+               <Button 
+                variant="outline" 
+                className="px-3" 
+                title="Decline"
+                onClick={() => handleReject(session.SessionID)}
+                disabled={rejectingId === session.SessionID}
+              >
+                {rejectingId === session.SessionID ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                ) : (
+                    <X className="h-4 w-4 text-destructive" />
+                )}
               </Button>
             </div>
           </Card>

@@ -82,16 +82,16 @@ function LearnerSessionsContent() {
   }, [searchParams, sessions]);
 
   const { data: timeSlotsData } = useQuery({
-    queryKey: ["learner", "time-slots", sessions.filter((s:any) => s.Status === 'PENDING_MATCH').map((s:any) => s.SessionID)],
+    queryKey: ["learner", "time-slots", sessions.filter((s: any) => s.Status === 'PENDING_MATCH').map((s: any) => s.SessionID)],
     queryFn: async () => {
-        const results: Record<string, any[]> = {};
-        for (const session of sessions) {
-            if (session.Status === 'PENDING_MATCH') {
-                const tsRes = await api.get(`/sessions/${session.SessionID}/time-slots`);
-                results[session.SessionID] = tsRes.data?.data || [];
-            }
+      const results: Record<string, any[]> = {};
+      for (const session of sessions) {
+        if (session.Status === 'PENDING_MATCH') {
+          const tsRes = await api.get(`/sessions/${session.SessionID}/time-slots`);
+          results[session.SessionID] = tsRes.data?.data || [];
         }
-        return results;
+      }
+      return results;
     },
     enabled: sessions.length > 0 && activeTab === 'PENDING_MATCH'
   });
@@ -142,6 +142,7 @@ function LearnerSessionsContent() {
             <TabsTrigger value="SCHEDULED">Scheduled</TabsTrigger>
             <TabsTrigger value="PENDING_MATCH">Requested</TabsTrigger>
             <TabsTrigger value="COMPLETED">Completed</TabsTrigger>
+            <TabsTrigger value="CANCELLED">Cancelled</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-0">
@@ -178,105 +179,120 @@ function LearnerSessionsContent() {
                           <div>
                             <h3 className="text-lg font-bold">{session.MentorName}</h3>
                             <Badge className={cn("text-[10px] uppercase font-bold mt-1", config.color)}>
-                                <StatusIcon className="w-3 h-3 mr-1" />
-                                {config.label}
+                              <StatusIcon className="w-3 h-3 mr-1" />
+                              {config.label}
                             </Badge>
                           </div>
                         </div>
 
                         <div className="flex-1 space-y-4">
-                            <div>
-                                <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">Session Detail</h4>
-                                <h3 className="text-xl font-bold">{session.Title}</h3>
-                                <p className="text-sm text-gray-500 line-clamp-2">{session.Description || "No description provided."}</p>
+                          <div>
+                            <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-1">Session Detail</h4>
+                            <h3 className="text-xl font-bold">{session.Title}</h3>
+                            <p className="text-sm text-gray-500 line-clamp-2">{session.Description || "No description provided."}</p>
+                          </div>
+
+                          {session.Status === 'SCHEDULED' || session.Status === 'IN_PROGRESS' ? (
+                            <div className="flex items-center gap-6 p-4 bg-primary/5 rounded-2xl border border-primary/10">
+                              <div className="text-center">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase">Date</p>
+                                <p className="font-bold">{format(new Date(session.ScheduledStart), "MMM dd, yyyy")}</p>
+                              </div>
+                              <div className="h-8 w-px bg-primary/20" />
+                              <div className="text-center">
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase">Time</p>
+                                <p className="font-bold">{format(new Date(session.ScheduledStart), "p")}</p>
+                              </div>
+                              <Button className="ml-auto" asChild>
+                                <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>
+                                  <Video className="w-4 h-4 mr-2" />
+                                  Join Meeting
+                                </Link>
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={() => handleChat(session.MentorID)}
+                                disabled={isChatLoading === session.MentorID}
+                              >
+                                {isChatLoading === session.MentorID ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <MessageSquare className="w-4 h-4 mr-2" />
+                                )}
+                                Message
+                              </Button>
                             </div>
+                          ) : session.Status === 'CANCELLED' ? (
+                            <div className="flex justify-end gap-3 mt-4">
+                              <Button
+                                variant="outline"
+                                onClick={() => handleChat(session.MentorID)}
+                                disabled={isChatLoading === session.MentorID}
+                              >
+                                {isChatLoading === session.MentorID ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <MessageSquare className="w-4 h-4 mr-2" />
+                                )}
+                                Message Mentor
+                              </Button>
+                            </div>
+                          ) : null}
 
-                            {session.Status === 'SCHEDULED' || session.Status === 'IN_PROGRESS' ? (
-                                <div className="flex items-center gap-6 p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                                    <div className="text-center">
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Date</p>
-                                        <p className="font-bold">{format(new Date(session.ScheduledStart), "MMM dd, yyyy")}</p>
-                                    </div>
-                                    <div className="h-8 w-px bg-primary/20" />
-                                    <div className="text-center">
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">Time</p>
-                                        <p className="font-bold">{format(new Date(session.ScheduledStart), "p")}</p>
-                                    </div>
-                                    <Button className="ml-auto" asChild>
-                                        <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>
-                                            <Video className="w-4 h-4 mr-2" />
-                                            Join Meeting
-                                        </Link>
-                                    </Button>
-                                    <Button 
-                                        variant="outline" 
-                                        onClick={() => handleChat(session.MentorID)}
-                                        disabled={isChatLoading === session.MentorID}
+                          {session.Status === 'COMPLETED' && (
+                            <div className="flex justify-end gap-3 mt-4">
+                              <Button
+                                onClick={() => setReviewingSession({ id: session.SessionID, name: session.MentorName })}
+                                className="bg-primary shadow-lg shadow-primary/20"
+                              >
+                                <Star className="w-4 h-4 mr-2" />
+                                Rate Mentor
+                              </Button>
+                            </div>
+                          )}
+
+                          {session.Status === 'PENDING_MATCH' && (
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-primary">Proposed Time Slots</h4>
+                                {proposedSlots.length > 0 && (
+                                  <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 animate-bounce">
+                                    Action Required
+                                  </Badge>
+                                )}
+                              </div>
+                              {proposedSlots.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {proposedSlots.map((slot) => (
+                                    <Button
+                                      key={slot.TimeSlotID}
+                                      variant="outline"
+                                      className="justify-between h-auto py-3 px-4 rounded-xl border-dashed hover:border-primary hover:bg-primary/5 group"
+                                      onClick={() => handleSelectSlot(session.SessionID, slot.TimeSlotID)}
+                                      disabled={!!isSelecting}
                                     >
-                                        {isChatLoading === session.MentorID ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <MessageSquare className="w-4 h-4 mr-2" />
-                                        )}
-                                        Message
+                                      <div className="text-left">
+                                        <p className="text-xs font-bold text-muted-foreground">{format(new Date(slot.StartTime), "EEE, MMM dd")}</p>
+                                        <p className="text-sm font-bold">{format(new Date(slot.StartTime), "p")}</p>
+                                      </div>
+                                      {isSelecting === slot.TimeSlotID ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                      ) : (
+                                        <Check className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                      )}
                                     </Button>
+                                  ))}
                                 </div>
-                            ) : null}
-
-                            {session.Status === 'COMPLETED' && (
-                                <div className="flex justify-end gap-3 mt-4">
-                                    <Button 
-                                        onClick={() => setReviewingSession({ id: session.SessionID, name: session.MentorName })}
-                                        className="bg-primary shadow-lg shadow-primary/20"
-                                    >
-                                        <Star className="w-4 h-4 mr-2" />
-                                        Rate Mentor
-                                    </Button>
+                              ) : (
+                                <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+                                  <Clock3 className="w-8 h-8 text-gray-300 mb-2 animate-pulse" />
+                                  <p className="text-sm text-gray-500 font-medium italic">
+                                    Waiting for mentor to propose time slots...
+                                  </p>
                                 </div>
-                            )}
-
-                            {session.Status === 'PENDING_MATCH' && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-xs font-bold uppercase tracking-wider text-primary">Proposed Time Slots</h4>
-                                        {proposedSlots.length > 0 && (
-                                            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 animate-bounce">
-                                                Action Required
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    {proposedSlots.length > 0 ? (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {proposedSlots.map((slot) => (
-                                                <Button 
-                                                    key={slot.TimeSlotID}
-                                                    variant="outline" 
-                                                    className="justify-between h-auto py-3 px-4 rounded-xl border-dashed hover:border-primary hover:bg-primary/5 group"
-                                                    onClick={() => handleSelectSlot(session.SessionID, slot.TimeSlotID)}
-                                                    disabled={!!isSelecting}
-                                                >
-                                                    <div className="text-left">
-                                                        <p className="text-xs font-bold text-muted-foreground">{format(new Date(slot.StartTime), "EEE, MMM dd")}</p>
-                                                        <p className="text-sm font-bold">{format(new Date(slot.StartTime), "p")}</p>
-                                                    </div>
-                                                    {isSelecting === slot.TimeSlotID ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <Check className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    )}
-                                                </Button>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
-                                            <Clock3 className="w-8 h-8 text-gray-300 mb-2 animate-pulse" />
-                                            <p className="text-sm text-gray-500 font-medium italic">
-                                                Waiting for mentor to propose time slots...
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -290,14 +306,14 @@ function LearnerSessionsContent() {
 
       {reviewingSession && (
         <ReviewModal
-            isOpen={!!reviewingSession}
-            onClose={() => setReviewingSession(null)}
-            sessionId={reviewingSession.id}
-            targetName={reviewingSession.name}
-            onSuccess={() => {
-                setReviewingSession(null);
-                refetch();
-            }}
+          isOpen={!!reviewingSession}
+          onClose={() => setReviewingSession(null)}
+          sessionId={reviewingSession.id}
+          targetName={reviewingSession.name}
+          onSuccess={() => {
+            setReviewingSession(null);
+            refetch();
+          }}
         />
       )}
     </div>

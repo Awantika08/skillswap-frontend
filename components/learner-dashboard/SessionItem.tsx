@@ -42,7 +42,7 @@ export const SessionItem = ({
   };
 
   const isJoinable = session.Status === 'IN_PROGRESS' || session.Status === 'SCHEDULED';
-  const showSlots = session.Status === 'PENDING_MATCH' && proposedSlots.length > 0;
+  const showSlots = (session.Status === 'PENDING_MATCH' || session.Status === 'SCHEDULED') && proposedSlots.length > 0;
   const timeStr = session.ScheduledStart 
     ? format(new Date(session.ScheduledStart), "h:mm a, MMM dd")
     : "TBD";
@@ -74,10 +74,17 @@ export const SessionItem = ({
           </div>
         </div>
         <div>
-          {isJoinable ? (
+          {session.Status === 'IN_PROGRESS' ? (
             <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-5 h-8 text-[11px] font-bold shadow-lg shadow-rose-500/20" asChild>
-                <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>Join</Link>
+                <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>Join Now</Link>
             </Button>
+          ) : session.Status === 'SCHEDULED' ? (
+            <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-[10px] border-primary/20 text-primary px-3 py-1 rounded-full font-bold">Scheduled</Badge>
+                <Button size="sm" variant="ghost" className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-full px-4 h-8 text-[11px] font-bold" asChild>
+                    <Link href={`/learner/video-call?sessionId=${session.SessionID}`}>Enter Room</Link>
+                </Button>
+            </div>
           ) : session.Status === 'PENDING_MATCH' ? (
                 <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 text-[10px] font-bold">
                     {proposedSlots.length > 0 ? "Action Required" : "Requested"}
@@ -92,21 +99,39 @@ export const SessionItem = ({
 
       {showSlots && (
         <div className="pt-2 border-t border-dashed border-border/50">
-            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">Mentor Proposed Times:</p>
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-2">
+                {session.Status === 'SCHEDULED' ? "Change Time (Mentor's Other Slots):" : "Mentor Proposed Times:"}
+            </p>
             <div className="flex flex-wrap gap-2">
-                {proposedSlots.map((slot: any) => (
-                    <Button 
-                        key={slot.TimeSlotID}
-                        variant="ghost" 
-                        size="sm"
-                        className="h-auto py-1.5 px-3 rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 text-[10px] font-bold flex flex-col items-start gap-0"
-                        onClick={() => handleSelectSlot(slot.TimeSlotID)}
-                        disabled={!!isSelecting}
-                    >
-                        <span className="text-muted-foreground text-[8px] uppercase">{format(new Date(slot.StartTime), "eee, MMM d")}</span>
-                        <span>{format(new Date(slot.StartTime), "h:mm a")}</span>
-                    </Button>
-                ))}
+                {proposedSlots.map((slot: any) => {
+                    const isSelected = slot.IsSelected || (session.ScheduledStart && new Date(session.ScheduledStart).getTime() === new Date(slot.StartTime).getTime());
+                    
+                    return (
+                        <Button 
+                            key={slot.TimeSlotID}
+                            variant={isSelected ? "outline" : "ghost"} 
+                            size="sm"
+                            className={`h-auto py-1.5 px-3 rounded-xl transition-all text-[10px] font-bold flex flex-col items-start gap-0 ${
+                                isSelected 
+                                ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20 scale-105" 
+                                : "bg-primary/5 hover:bg-primary/10 border border-primary/10 text-primary"
+                            }`}
+                            onClick={() => handleSelectSlot(slot.TimeSlotID)}
+                            disabled={!!isSelecting || (isSelected && session.Status === 'SCHEDULED')}
+                        >
+                            <span className={`${isSelected ? "text-primary-foreground/70" : "text-muted-foreground"} text-[8px] uppercase`}>
+                                {format(new Date(slot.StartTime), "eee, MMM d")}
+                            </span>
+                            <span>{format(new Date(slot.StartTime), "h:mm a")}</span>
+                            {isSelected && session.Status === 'SCHEDULED' && (
+                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                                </span>
+                            )}
+                        </Button>
+                    );
+                })}
             </div>
         </div>
       )}

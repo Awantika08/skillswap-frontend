@@ -60,6 +60,7 @@ function MentorSessionsContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "SCHEDULED");
   const [isChatLoading, setIsChatLoading] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [reviewingSession, setReviewingSession] = useState<{ id: string, name: string } | null>(null);
   const [selectedSession, setSelectedSession] = useState<{ id: string, learnerName: string } | null>(null);
 
@@ -73,6 +74,26 @@ function MentorSessionsContent() {
       return response.data?.data?.sessions || [];
     },
   });
+
+  const handleCancelSession = async (sessionId: string) => {
+    if (!window.confirm("Are you sure you want to cancel this session? This action will notify the learner.")) {
+        return;
+    }
+
+    try {
+        setCancellingId(sessionId);
+        const res = await api.patch(`/mentor/sessions/${sessionId}/status`, { status: "CANCELLED" });
+        if (res.data.success) {
+            toast.success("Session cancelled successfully");
+            refetch();
+        }
+    } catch (err: any) {
+        console.error("Cancel session error", err);
+        toast.error(err.response?.data?.errors?.[0]?.message || "Failed to cancel session.");
+    } finally {
+        setCancellingId(null);
+    }
+  };
 
   // Auto-open review modal if query param is present
   useEffect(() => {
@@ -229,10 +250,20 @@ function MentorSessionsContent() {
                                 Send Message
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Cancel Session
-                              </DropdownMenuItem>
+                              {session.Status !== 'CANCELLED' && (
+                                <DropdownMenuItem 
+                                    onClick={() => handleCancelSession(session.SessionID)} 
+                                    className="cursor-pointer text-destructive focus:text-destructive"
+                                    disabled={cancellingId === session.SessionID}
+                                >
+                                    {cancellingId === session.SessionID ? (
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    ) : (
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                    )}
+                                    Cancel Session
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
