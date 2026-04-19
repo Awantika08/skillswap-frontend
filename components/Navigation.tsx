@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUnreadCount } from "@/features/chat/hooks";
 import { NotificationPopover } from "@/components/notifications/notification-popover";
 import { getFullImageUrl } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -132,6 +133,7 @@ export default function Navigation() {
                 <NotificationPopover />
               </div>
             )}
+            <ThemeToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -290,6 +292,7 @@ export default function Navigation() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <ThemeToggle />
                       <NotificationPopover />
                     </div>
                   </div>

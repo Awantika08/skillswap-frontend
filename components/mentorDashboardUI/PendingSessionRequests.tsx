@@ -33,12 +33,7 @@ export default function PendingSessionRequests() {
   }
 
   if (sessions.length === 0) {
-    return (
-      <Card className="p-8 text-center border-dashed bg-muted/20">
-        <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-4" />
-        <p className="text-sm text-muted-foreground font-medium">No pending requests at the moment.</p>
-      </Card>
-    );
+    return null;
   }
 
   return (

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { NotificationPopover } from "@/components/notifications/notification-popover"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function SiteHeader() {
   return (
@@ -16,6 +17,7 @@ export function SiteHeader() {
           {/* Page title or breadcrumbs can go here */}
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationPopover />
         </div>
       </div>

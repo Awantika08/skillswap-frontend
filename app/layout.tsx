@@ -4,6 +4,7 @@ import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/providers/AuthProvider";
 import SocketProvider from "@/providers/SocketProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,14 +32,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReactQueryProvider>
-          <AuthProvider>
-            <SocketProvider>
-              {children}
-              <Toaster position="top-right" reverseOrder={false} />
-            </SocketProvider>
-          </AuthProvider>
-        </ReactQueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <ReactQueryProvider>
+            <AuthProvider>
+              <SocketProvider>
+                {children}
+                <Toaster position="top-right" reverseOrder={false} />
+              </SocketProvider>
+            </AuthProvider>
+          </ReactQueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
